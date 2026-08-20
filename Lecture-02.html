@@ -2069,4 +2069,558 @@ class Component extends DCLogic {
   }
 })();
 </script>
+<style id="__mdl_style">
+/* Fold the original standalone Save-HTML/drop-target toolbar away — its
+   Save action is re-exposed as a button inside the Aa reading-controls
+   menu instead (see script below). */
+#__idtToolbar{display:none!important}
+.__mdl_export_row button{all:unset;box-sizing:border-box;cursor:pointer;font:inherit;font-size:12px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);white-space:nowrap}
+.__mdl_export_row button:hover{background:rgba(255,255,255,.18)}
+.__mdl_export_row button:active{background:rgba(255,255,255,.28)}
+@media print{.__mdl_export_row{display:none!important}}
+.__mdl_drag_ghost{position:fixed;pointer-events:none;z-index:999999998;opacity:.85;transform:scale(1.06);box-shadow:0 10px 24px rgba(0,0,0,.3)}
+.__mdl_drop_hover{outline:3px solid var(--color-accent,#0088b0);outline-offset:2px}
+[draggable="true"]{touch-action:none}
+#__mdl_annot_canvas{position:fixed;touch-action:none;z-index:999999999;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+@media print{#__mdl_annot_canvas{display:none!important}}
+#__mdl_annot_wrap{position:fixed;top:18px;right:18px;z-index:2147483002;font-family:-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+@media print{#__mdl_annot_wrap{display:none!important}}
+#__mdl_annot_toggle{all:unset;box-sizing:border-box;cursor:pointer;background:#000;color:rgba(255,255,255,.78);height:32px;padding:0 14px;border-radius:999px;font-size:15px;box-shadow:0 4px 14px rgba(0,0,0,.3);display:inline-flex;align-items:center}
+#__mdl_annot_toggle[data-on]{color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.3),0 0 0 2px rgba(255,255,255,.5)}
+#__mdl_annot_panel{display:none;flex-direction:column;gap:12px;background:#000;border-radius:12px;padding:14px 16px;box-shadow:0 8px 24px rgba(0,0,0,.35);color:#fff;min-width:210px}
+.__mdl_annot_row{display:flex;align-items:center;gap:10px}
+.__mdl_annot_row_label{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.55);min-width:62px}
+.__mdl_annot_swatches{display:flex;gap:6px}
+.__mdl_annot_swatch{all:unset;box-sizing:border-box;width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent}
+.__mdl_annot_swatch[data-selected]{border-color:#fff}
+.__mdl_annot_seg{display:flex;gap:4px;background:rgba(255,255,255,.1);border-radius:999px;padding:3px}
+.__mdl_annot_seg button{all:unset;box-sizing:border-box;cursor:pointer;font:inherit;font-size:12px;padding:4px 12px;border-radius:999px;color:rgba(255,255,255,.7)}
+.__mdl_annot_seg button[data-selected]{background:#fff;color:#000}
+#__mdl_annot_clear{all:unset;box-sizing:border-box;cursor:pointer;font:inherit;font-size:12px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);text-align:center}
+#__mdl_annot_clear:hover{background:rgba(255,255,255,.18)}
+</style>
+<script id="__mdl_script">(function () {
+  try {
+    var MOBILE_MQ = window.matchMedia('(hover: none), (max-width: 900px)');
+    var RAIL_HOVER_PX = 210; // rail width (~188px) plus a small buffer
+
+    function slidesOf(ds) {
+      return Array.prototype.filter.call(ds.children, function (el) {
+        return el.classList && el.classList.contains('slide');
+      });
+    }
+
+    // US-Letter-landscape print fit. Two things need fixing about
+    // deck-stage's own print handling:
+    //  1. Its @page size is locked to the deck's authored design
+    //     width/height (e.g. 1920x1080px) — far larger than any real
+    //     paper, so a straight window.print() produces an oversized page.
+    //  2. Shrinking that via the width/height attributes (an earlier
+    //     version of this fix) changes the DESIGN CANVAS itself, not just
+    //     the output scale — the print CSS sizes each slide to
+    //     var(--deck-design-w/h) with no compensating scale-down of its
+    //     authored-at-1920px content, so headings/body text end up
+    //     cramped and overflowing at the smaller canvas size. What's
+    //     wanted is the deck rendered exactly as it looks on a normal
+    //     desktop browser, just shrunk as a whole for the page.
+    // So instead: leave the deck's own width/height/typography completely
+    // alone, and apply 'zoom' (not 'transform') directly to the .slide
+    // elements for print only. zoom actually shrinks the effective layout
+    // size (unlike transform, which only affects paint) — the same
+    // mechanism deck-stage's own mobile reflow mode uses on the canvas —
+    // so pagination sees the smaller footprint while every element inside
+    // keeps rendering at its normal, fully-proportioned desktop layout,
+    // just uniformly scaled down as a whole. The .slide elements are
+    // light-DOM children of <deck-stage> (only slotted into its shadow
+    // root for rendering), so a plain page-level stylesheet reaches them
+    // directly — no shadow-DOM override needed for this part.
+    function downloadPdf(ds) {
+      var PAGE_W = 1056, PAGE_H = 816; // US Letter landscape, 96 CSS px/in
+      var dw = ds.designWidth, dh = ds.designHeight;
+      var scale = Math.min(PAGE_W / dw, PAGE_H / dh);
+      var pageWIn = (dw * scale / 96).toFixed(3);
+      var pageHIn = (dh * scale / 96).toFixed(3);
+
+      var zoomStyle = document.createElement('style');
+      zoomStyle.textContent = '@media print { deck-stage .slide { zoom: ' + scale + ' !important; } }';
+      document.head.appendChild(zoomStyle);
+
+      // deck-stage's own beforeprint handler (registered when the deck
+      // mounted, so it runs before this one) writes the @page rule in px
+      // units off the deck's full 1920x1080 design size. Overriding it
+      // here in physical inch units, matching the zoomed content size, is
+      // also a more print-engine-portable equivalent than a raw pixel
+      // size (a custom pixel @page was seen clipped on one side with
+      // blank space left on another on Safari — a sign it wasn't
+      // recognized as landscape; inches sidestep that).
+      function reinforcePageUnits() {
+        var pageStyle = document.getElementById('deck-stage-print-page');
+        if (pageStyle) {
+          pageStyle.textContent = '@page { size: ' + pageWIn + 'in ' + pageHIn + 'in; margin: 0; }';
+        }
+        window.removeEventListener('beforeprint', reinforcePageUnits);
+      }
+      var cleaned = false;
+      function cleanup() {
+        if (cleaned) return;
+        cleaned = true;
+        zoomStyle.remove();
+        window.removeEventListener('afterprint', cleanup);
+      }
+      window.addEventListener('beforeprint', reinforcePageUnits);
+      window.addEventListener('afterprint', cleanup);
+      setTimeout(cleanup, 15000);
+      window.print();
+    }
+
+    // Freehand annotation layer for presenting with an Apple Pencil (or
+    // finger/mouse). A canvas is overlaid exactly on top of the deck's
+    // rendered slide area — not the whole viewport — so our other chrome
+    // (nav bar, Aa menu) stays reachable at the screen edges. Strokes are
+    // stored per slide index as FRACTIONAL (0..1) coordinates relative to
+    // the slide box, not raw pixels, so they redraw correctly at any
+    // canvas size (resizing a canvas element clears its bitmap, and the
+    // slide's on-screen size changes with the window, the rail
+    // reveal/hide, and the reading-controls text-size step). A
+    // requestAnimationFrame loop watches the slide box's live
+    // getBoundingClientRect() and only re-lays-out/redraws when it
+    // actually changes, so this stays correct through every one of those
+    // triggers without having to hook each of them individually. The
+    // canvas only captures pointer events while annotation mode is
+    // switched on (via its own dropdown, separate from the Aa menu) —
+    // otherwise it's fully click-through so normal presenting (via the
+    // slide-changer button) is unaffected, and the ink stays visible
+    // either way.
+    function initAnnotation(ds) {
+      var state = {
+        active: false,
+        eraser: false,
+        color: '#ff3b30',
+        width: 4,
+        strokesBySlide: {},
+        current: null
+      };
+
+      var canvas = document.createElement('canvas');
+      canvas.id = '__mdl_annot_canvas';
+      document.body.appendChild(canvas);
+      var ctx = canvas.getContext('2d');
+      var lastRectKey = '';
+
+      function currentIndex() {
+        var slides = slidesOf(ds);
+        var active = ds.querySelector('.slide[data-deck-active]');
+        return slides.indexOf(active);
+      }
+
+      function drawStroke(s, w, h) {
+        if (s.points.length < 1) return;
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.globalCompositeOperation = s.eraser ? 'destination-out' : 'source-over';
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = s.width;
+        ctx.beginPath();
+        s.points.forEach(function (p, i) {
+          var x = p.x * w, y = p.y * h;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function redraw() {
+        var dpr = window.devicePixelRatio || 1;
+        var w = canvas.width / dpr, h = canvas.height / dpr;
+        ctx.clearRect(0, 0, w, h);
+        var strokes = state.strokesBySlide[currentIndex()] || [];
+        strokes.forEach(function (s) { drawStroke(s, w, h); });
+      }
+
+      function layout(rect) {
+        var dpr = window.devicePixelRatio || 1;
+        canvas.style.left = rect.left + 'px';
+        canvas.style.top = rect.top + 'px';
+        canvas.style.width = rect.width + 'px';
+        canvas.style.height = rect.height + 'px';
+        canvas.width = Math.max(1, Math.round(rect.width * dpr));
+        canvas.height = Math.max(1, Math.round(rect.height * dpr));
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        redraw();
+      }
+
+      function tick() {
+        var box = ds.shadowRoot && ds.shadowRoot.querySelector('.canvas');
+        if (box) {
+          var r = box.getBoundingClientRect();
+          var key = r.left + ',' + r.top + ',' + r.width + ',' + r.height;
+          if (key !== lastRectKey) {
+            lastRectKey = key;
+            layout(r);
+          }
+        }
+        requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+      ds.addEventListener('slidechange', redraw);
+
+      function pointFromEvent(e) {
+        var rect = canvas.getBoundingClientRect();
+        return {
+          x: rect.width ? (e.clientX - rect.left) / rect.width : 0,
+          y: rect.height ? (e.clientY - rect.top) / rect.height : 0
+        };
+      }
+      function widthForEvent(e) {
+        if (state.eraser) return state.width * 3;
+        var p = (e.pointerType === 'pen' && e.pressure > 0) ? e.pressure : 0.6;
+        return state.width * (0.5 + p);
+      }
+      canvas.addEventListener('pointerdown', function (e) {
+        if (!state.active) return;
+        e.preventDefault();
+        canvas.setPointerCapture(e.pointerId);
+        state.current = {
+          color: state.color,
+          eraser: state.eraser,
+          width: widthForEvent(e),
+          points: [pointFromEvent(e)]
+        };
+      });
+      canvas.addEventListener('pointermove', function (e) {
+        if (!state.active || !state.current) return;
+        e.preventDefault();
+        state.current.points.push(pointFromEvent(e));
+        var dpr = window.devicePixelRatio || 1;
+        drawStroke(state.current, canvas.width / dpr, canvas.height / dpr);
+      });
+      function endStroke() {
+        if (!state.active || !state.current) return;
+        var idx = currentIndex();
+        if (!state.strokesBySlide[idx]) state.strokesBySlide[idx] = [];
+        state.strokesBySlide[idx].push(state.current);
+        state.current = null;
+      }
+      canvas.addEventListener('pointerup', endStroke);
+      canvas.addEventListener('pointercancel', endStroke);
+
+      // --- Dropdown menu: separate from the Aa reading-controls menu ---
+      var wrap = document.createElement('div');
+      wrap.id = '__mdl_annot_wrap';
+
+      var panel = document.createElement('div');
+      panel.id = '__mdl_annot_panel';
+
+      var onRow = document.createElement('div');
+      onRow.className = '__mdl_annot_row';
+      var onLabel = document.createElement('span');
+      onLabel.className = '__mdl_annot_row_label';
+      onLabel.textContent = 'Draw';
+      var onBtn = document.createElement('button');
+      onBtn.type = 'button';
+      onBtn.className = '__mdl_annot_seg';
+      onBtn.style.cssText = 'all:unset;box-sizing:border-box;cursor:pointer;font-size:12px;padding:4px 14px;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)';
+      onBtn.textContent = 'Off';
+      onRow.appendChild(onLabel);
+      onRow.appendChild(onBtn);
+
+      var colorRow = document.createElement('div');
+      colorRow.className = '__mdl_annot_row';
+      var colorLabel = document.createElement('span');
+      colorLabel.className = '__mdl_annot_row_label';
+      colorLabel.textContent = 'Color';
+      var swatches = document.createElement('div');
+      swatches.className = '__mdl_annot_swatches';
+      var COLORS = ['#ff3b30', '#000000', '#0a84ff', '#ffd60a', '#34c759'];
+      var swatchEls = COLORS.map(function (c) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = '__mdl_annot_swatch';
+        b.style.background = c;
+        b.addEventListener('click', function () {
+          state.color = c;
+          state.eraser = false;
+          syncUI();
+        });
+        swatches.appendChild(b);
+        return b;
+      });
+      colorRow.appendChild(colorLabel);
+      colorRow.appendChild(swatches);
+
+      var widthRow = document.createElement('div');
+      widthRow.className = '__mdl_annot_row';
+      var widthLabel = document.createElement('span');
+      widthLabel.className = '__mdl_annot_row_label';
+      widthLabel.textContent = 'Thickness';
+      var widthSeg = document.createElement('div');
+      widthSeg.className = '__mdl_annot_seg';
+      var WIDTHS = [{ label: 'Thin', v: 2 }, { label: 'Med', v: 4 }, { label: 'Thick', v: 8 }];
+      var widthEls = WIDTHS.map(function (o) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = o.label;
+        b.addEventListener('click', function () { state.width = o.v; syncUI(); });
+        widthSeg.appendChild(b);
+        return b;
+      });
+      widthRow.appendChild(widthLabel);
+      widthRow.appendChild(widthSeg);
+
+      var actionRow = document.createElement('div');
+      actionRow.className = '__mdl_annot_row';
+      var eraserBtn = document.createElement('button');
+      eraserBtn.type = 'button';
+      eraserBtn.className = '__mdl_annot_seg';
+      eraserBtn.style.cssText = 'all:unset;box-sizing:border-box;cursor:pointer;font-size:12px;padding:4px 14px;border-radius:999px;background:rgba(255,255,255,.1);color:rgba(255,255,255,.85)';
+      eraserBtn.textContent = 'Eraser';
+      eraserBtn.addEventListener('click', function () { state.eraser = !state.eraser; syncUI(); });
+      var clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
+      clearBtn.id = '__mdl_annot_clear';
+      clearBtn.textContent = 'Clear slide';
+      clearBtn.addEventListener('click', function () {
+        delete state.strokesBySlide[currentIndex()];
+        redraw();
+      });
+      actionRow.appendChild(eraserBtn);
+      actionRow.appendChild(clearBtn);
+
+      panel.appendChild(onRow);
+      panel.appendChild(colorRow);
+      panel.appendChild(widthRow);
+      panel.appendChild(actionRow);
+
+      var toggle = document.createElement('button');
+      toggle.type = 'button';
+      toggle.id = '__mdl_annot_toggle';
+      toggle.setAttribute('aria-label', 'Annotation tools');
+      toggle.title = 'Annotation tools';
+      toggle.textContent = '✎';
+      var panelOpen = false;
+      toggle.addEventListener('click', function () {
+        panelOpen = !panelOpen;
+        panel.style.display = panelOpen ? 'flex' : 'none';
+      });
+
+      wrap.appendChild(panel);
+      wrap.appendChild(toggle);
+      document.body.appendChild(wrap);
+
+      function syncUI() {
+        canvas.style.pointerEvents = state.active ? 'auto' : 'none';
+        toggle.toggleAttribute('data-on', state.active);
+        onBtn.textContent = state.active ? 'On' : 'Off';
+        onBtn.style.background = state.active ? '#fff' : 'rgba(255,255,255,.1)';
+        onBtn.style.color = state.active ? '#000' : 'rgba(255,255,255,.85)';
+        swatchEls.forEach(function (b, i) {
+          b.toggleAttribute('data-selected', !state.eraser && COLORS[i] === state.color);
+        });
+        widthEls.forEach(function (b, i) {
+          b.toggleAttribute('data-selected', WIDTHS[i].v === state.width);
+        });
+        eraserBtn.style.background = state.eraser ? '#fff' : 'rgba(255,255,255,.1)';
+        eraserBtn.style.color = state.eraser ? '#000' : 'rgba(255,255,255,.85)';
+      }
+      onBtn.addEventListener('click', function () { state.active = !state.active; syncUI(); });
+      syncUI();
+    }
+
+    // Touch-compatible drag-and-drop. The deck's own drag-match activities
+    // (e.g. "Match the Mistake") use the native HTML5 Drag and Drop API —
+    // draggable="true" plus dragstart/dragover/drop events. iOS Safari has
+    // never fired those events for touch input at all (a long-standing
+    // WebKit limitation, true on every iPad regardless of anything on this
+    // page) — with a real mouse it already works fine, so this only steps
+    // in for touch/pen input. Neither of the deck's own handlers reads
+    // anything off the event object (both are argument-less arrow
+    // functions), so a plain synthetic Event of the right type reaches
+    // them the same as a real drag would; there's no need to construct a
+    // real DragEvent/DataTransfer or to simulate the dragover step (that
+    // exists in native DnD only to opt into allowing a drop, which is
+    // irrelevant once we're dispatching the 'drop' event ourselves rather
+    // than relying on the browser's native drag gesture recognition).
+    // This targets .drag-pill/.drop-zone generically — the design
+    // system's own shared component classes (defined once in the
+    // Broadsheet stylesheet embedded in every lecture) — rather than
+    // anything specific to this one activity, so it keeps working for any
+    // future lecture's drag-match exercise built the same way.
+    function initTouchDragDrop() {
+      var dragEl = null, ghost = null;
+
+      function clearHover() {
+        var prev = document.querySelector('.__mdl_drop_hover');
+        if (prev) prev.classList.remove('__mdl_drop_hover');
+      }
+      function zoneAt(x, y) {
+        var el = document.elementFromPoint(x, y);
+        return el && el.closest ? el.closest('.drop-zone') : null;
+      }
+
+      document.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'mouse') return; // native DnD already covers a real mouse
+        var source = e.target.closest && e.target.closest('[draggable="true"]');
+        if (!source) return;
+        dragEl = source;
+        source.dispatchEvent(new Event('dragstart', { bubbles: true, cancelable: true }));
+        var rect = source.getBoundingClientRect();
+        ghost = source.cloneNode(true);
+        ghost.className = (ghost.className ? ghost.className + ' ' : '') + '__mdl_drag_ghost';
+        ghost.style.width = rect.width + 'px';
+        ghost.style.left = (e.clientX - rect.width / 2) + 'px';
+        ghost.style.top = (e.clientY - rect.height / 2) + 'px';
+        document.body.appendChild(ghost);
+        source.style.opacity = '0.3';
+        e.preventDefault();
+      }, { passive: false });
+
+      document.addEventListener('pointermove', function (e) {
+        if (!dragEl) return;
+        e.preventDefault();
+        if (ghost) {
+          ghost.style.left = (e.clientX - ghost.offsetWidth / 2) + 'px';
+          ghost.style.top = (e.clientY - ghost.offsetHeight / 2) + 'px';
+        }
+        clearHover();
+        var zone = zoneAt(e.clientX, e.clientY);
+        if (zone) zone.classList.add('__mdl_drop_hover');
+      }, { passive: false });
+
+      function endDrag(e) {
+        if (!dragEl) return;
+        var zone = zoneAt(e.clientX, e.clientY);
+        if (zone) zone.dispatchEvent(new Event('drop', { bubbles: true, cancelable: true }));
+        dragEl.style.opacity = '';
+        clearHover();
+        if (ghost) { ghost.remove(); ghost = null; }
+        dragEl = null;
+      }
+      document.addEventListener('pointerup', endDrag);
+      document.addEventListener('pointercancel', endDrag);
+    }
+
+    function init(ds) {
+      initTouchDragDrop();
+      initAnnotation(ds);
+
+      // Swipe/tap-anywhere navigation is deck-stage's own touch behavior
+      // (a touchend swipe calls the same public .next()/.prev(), reason
+      // 'api'; a bare tap on the stage calls _advance with reason 'tap')
+      // — there's no attribute to turn either off, and the handlers are
+      // bound inside deck-stage's shadow root, so they can't be unbound
+      // from here. Blocking the raw touch/click events instead (e.g.
+      // stopPropagation at the host) would also swallow clicks on real
+      // interactive slide content (quiz buttons, disclosures) since those
+      // events flow through the same element. So instead: let the change
+      // happen, then instantly revert it, using the 'slidechange' event's
+      // reason and previousIndex. Navigation is meant to happen only
+      // through the deck's own default overlay (its prev/next controls,
+      // reason 'click', are left untouched) — the revert's own goTo() is
+      // reason 'api' too, so a flag guards it from re-triggering itself.
+      var reverting = false;
+      ds.addEventListener('slidechange', function (e) {
+        if (reverting) return;
+        var reason = e.detail && e.detail.reason;
+        if (reason === 'tap' || reason === 'api') {
+          var back = e.detail.previousIndex >= 0 ? e.detail.previousIndex : 0;
+          reverting = true;
+          ds.goTo(back);
+          reverting = false;
+        }
+      });
+
+      // Rail auto-hide. On touch/narrow layouts the rail stays permanently
+      // hidden (unchanged from before — there's no hover to reveal it by).
+      // On desktop/pointer layouts it's hidden by default and reveals
+      // itself when the pointer nears the left edge, hiding again once the
+      // pointer moves away — a plain X-coordinate check rather than a real
+      // shadow-DOM mouseenter/leave pair, since the rail lives inside
+      // deck-stage's shadow root and isn't reachable for that from here.
+      var railRevealed = false;
+      function setRail(show) {
+        if (show === railRevealed) return;
+        railRevealed = show;
+        if (show) ds.removeAttribute('no-rail'); else ds.setAttribute('no-rail', '');
+      }
+      function onMouseMove(e) {
+        if (MOBILE_MQ.matches) return;
+        setRail(e.clientX < RAIL_HOVER_PX);
+      }
+      function syncRailMode() {
+        if (MOBILE_MQ.matches) {
+          document.removeEventListener('mousemove', onMouseMove);
+          railRevealed = false;
+          ds.setAttribute('no-rail', '');
+        } else {
+          document.addEventListener('mousemove', onMouseMove);
+          ds.setAttribute('no-rail', '');
+        }
+      }
+      syncRailMode();
+      if (MOBILE_MQ.addEventListener) MOBILE_MQ.addEventListener('change', syncRailMode);
+      else if (MOBILE_MQ.addListener) MOBILE_MQ.addListener(syncRailMode);
+
+      // Fold Save-HTML and Download-PDF into the "Aa" reading-controls
+      // menu (asset 94051f1c, self-mounting, builds .dvc-root > [panel,
+      // toggle] on its own poll loop) instead of leaving them as separate
+      // always-visible buttons. The original toolbar is hidden via CSS;
+      // its real Save-HTML button still exists off-screen and is
+      // triggered with a synthetic click rather than reimplementing it.
+      var dvcTries = 0;
+      var dvcPoll = setInterval(function () {
+        dvcTries++;
+        var dvcRoot = document.querySelector('.dvc-root');
+        var panel = dvcRoot && dvcRoot.children[0];
+        if (panel) {
+          clearInterval(dvcPoll);
+          var row = document.createElement('div');
+          row.className = '__mdl_export_row';
+          row.style.cssText = 'display:flex;align-items:center;gap:10px;';
+          var label = document.createElement('span');
+          label.style.cssText = 'font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.55);min-width:62px';
+          label.textContent = 'Export';
+          var group = document.createElement('div');
+          group.style.cssText = 'display:flex;gap:8px;';
+
+          var saveBtn = document.createElement('button');
+          saveBtn.type = 'button';
+          saveBtn.textContent = 'Save HTML';
+          saveBtn.addEventListener('click', function () {
+            var real = document.getElementById('__idtSaveBtn');
+            if (real) real.click();
+          });
+
+          var pdfBtn = document.createElement('button');
+          pdfBtn.type = 'button';
+          pdfBtn.textContent = 'Download PDF';
+          pdfBtn.addEventListener('click', function () { downloadPdf(ds); });
+
+          group.appendChild(saveBtn);
+          group.appendChild(pdfBtn);
+          row.appendChild(label);
+          row.appendChild(group);
+          panel.appendChild(row);
+        } else if (dvcTries > 150) {
+          clearInterval(dvcPoll);
+        }
+      }, 200);
+    }
+
+    var tries = 0;
+    var poll = setInterval(function () {
+      tries++;
+      var ds = document.querySelector('deck-stage');
+      if (ds) {
+        clearInterval(poll);
+        init(ds);
+      } else if (tries > 150) {
+        clearInterval(poll);
+      }
+    }, 200);
+  } catch (mdlErr) {
+    console.error('[mobile-nav] initialization error:', mdlErr);
+  }
+})();
+</script>
 </body></html>
