@@ -324,6 +324,46 @@ document.addEventListener('DOMContentLoaded', async function() {
       'catch (err) { restorePrintView(); setTimeout(function () { throw err; }, 0); }',
       "catch (err) { restorePrintView(); console.error('[PDF export] Print dialog could not open:', err); }"
     );
+    // Rasterize the live annotation layer before printing. Safari reliably
+    // carries the resulting PNG into a saved PDF, including erased areas.
+    template = template.replace(
+      'shell.appendChild(aCan);',
+      "var inkImage = document.createElement('img');\n          inkImage.className = '__mdl_pdf_ink';\n          inkImage.alt = '';\n          inkImage.width = 1920;\n          inkImage.height = 1080;\n          inkImage.src = aCan.toDataURL('image/png');\n          shell.appendChild(inkImage);"
+    );
+    template = template.replace(
+      '.__mdl_pdf_slide_shell > canvas.__mdl_pdf_ink {',
+      '.__mdl_pdf_slide_shell > .__mdl_pdf_ink {'
+    );
+    template = template.replace(
+      '    height: 1080px !important;\n    transform: scale(var(--__mdl_pdf_scale)) !important;\n    transform-origin',
+      '    height: 1080px !important;\n    max-width: none !important;\n    max-height: none !important;\n    object-fit: fill !important;\n    -webkit-print-color-adjust: exact;\n    print-color-adjust: exact;\n    transform: scale(var(--__mdl_pdf_scale)) !important;\n    transform-origin'
+    );
+    // Always begin with both control panels closed. If the reading-controls
+    // panel was left open in local storage, use its own toggle once so the
+    // closed state is also persisted for the next opening.
+    template = template.replace(
+      "panel.id = '__mdl_annot_panel';",
+      "panel.id = '__mdl_annot_panel';\n      panel.style.display = 'none';\n      panel.setAttribute('aria-hidden', 'true');"
+    );
+    template = template.replace(
+      "panel.style.display = panelOpen ? 'flex' : 'none';",
+      "panel.style.display = panelOpen ? 'flex' : 'none';\n        panel.setAttribute('aria-hidden', panelOpen ? 'false' : 'true');"
+    );
+    template = template.replace(
+      'if (panel) {\n          clearInterval(dvcPoll);',
+      "if (panel) {\n          var controlsToggle = dvcRoot.children[1];\n          if (panel.style.display !== 'none') {\n            if (controlsToggle && typeof controlsToggle.click === 'function') controlsToggle.click();\n            else panel.style.display = 'none';\n          }\n          clearInterval(dvcPoll);"
+    );
+    // Give the detached print pages the same fixed design tokens as the
+    // default desktop deck. The PDF no longer inherits a phone viewport or
+    // a saved text-size preference after slides leave <deck-stage>.
+    template = template.replace(
+      "root.id = '__mdl_pdf_root';\n      root.setAttribute('data-layout', mode);",
+      "root.id = '__mdl_pdf_root';\n      root.style.cssText = '--pad-x:130px;--pad-top:96px;--pad-bottom:104px;--baseline:50px;--type-display:124px;--type-title:74px;--type-subtitle:45px;--type-body:39px;--type-small:33px;--type-kicker:28px;--space-boost:0';\n      root.style.setProperty('--page-foot-note', '\"CHEM 3400H - Fall 2026\"');\n      root.setAttribute('data-layout', mode);\n      root.setAttribute('data-print-geometry', 'desktop-1920x1080');"
+    );
+    template = template.replace(
+      '  #__mdl_pdf_root .rise {',
+      '  #__mdl_pdf_root *,\n  #__mdl_pdf_root *::before,\n  #__mdl_pdf_root *::after {\n    animation: none !important;\n    transition: none !important;\n    scroll-behavior: auto !important;\n  }\n  #__mdl_pdf_root .rise {'
+    );
 
     // Parse the template and swap the root element. Scripts inserted via
     // DOMParser/replaceWith are inert per spec — re-create each with
