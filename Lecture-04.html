@@ -1140,24 +1140,37 @@ figure.added-photo:focus-visible,
   </div>
 </section>
 
-<section class="slide content" data-label="Case Study Setup" data-speaker-notes="Set up a realistic case: a consulting firm assessing a former industrial site for lead contamination before redevelopment. Ground the rest of the lecture in this scenario." style="width:1920px;height:1080px;">
-  <h2 class="slide-title">The scenario: a former industrial site, before redevelopment</h2>
+<section class="slide content" data-label="Case Study Setup" data-speaker-notes="Introduce the site and the question the consulting firm needed to answer. The numerical decision rule appears on the next slide." style="width:1920px;height:1080px;">
+  <h2 class="slide-title">Case study: a former battery site</h2>
   <div class="rise" style="background:var(--color-surface);border-radius:var(--radius-md);padding:36px;box-shadow:var(--shadow-sm);max-width:1650px;">
-    <div style="font-size:27px;line-height:1.7;">A consulting firm is hired to assess lead contamination on a 2-hectare former battery-manufacturing site before it is redeveloped into a residential park. For this hypothetical case, the decision rule requires the one-sided 95% upper confidence limit for the site-wide mean soil lead concentration to be below 400 mg/kg.</div>
+    <ul class="bullets" style="margin:0;">
+      <li><strong>Site:</strong> a 2-hectare former battery-manufacturing property</li>
+      <li><strong>Redevelopment plan:</strong> a residential park</li>
+      <li><strong>Target contaminant:</strong> lead in soil</li>
+      <li><strong>Task:</strong> decide whether the evidence supports redevelopment</li>
+    </ul>
   </div>
-  <div class="rise" style="margin-top:40px;font-size:24px;color:color-mix(in srgb, var(--color-text) 55%, transparent);font-style:italic;">Keep the four lectures in mind as we walk through what this firm actually did, and where it went wrong.</div>
+  <div class="rise" style="margin-top:36px;font-size:28px;font-weight:700;color:var(--color-primary);">Did the sampling plan collect the right evidence?</div>
   <div class="page-foot"></div>
 </section>
 
-<section class="slide content" data-label="The Regulatory Requirement" data-speaker-notes="Detail the specific regulatory requirement the report needed to satisfy, so students see exactly what decision the plan was designed to support." style="width:1920px;height:1080px;">
-  <h2 class="slide-title">The decision this report needed to support</h2>
-  <div class="rise" style="font-size:28px;line-height:1.65;max-width:1550px;">In this hypothetical case, redevelopment could proceed only if the one-sided 95% upper confidence limit for the site-wide mean soil lead concentration was below 400 mg/kg. That sentence captures the decision-rule core of the simplified DQO workflow from Lecture 3: a decision, a confidence level, and an explicit threshold.</div>
-  <div class="rise" style="margin-top:30px;font-size:26px;line-height:1.6;max-width:1550px;color:color-mix(in srgb, var(--color-text) 55%, transparent);">Every choice the firm made, sample mass, sample count, statistics, should trace back to satisfying exactly this requirement, and nothing more. Keep this sentence in mind as we look at what they actually did.</div>
+<section class="slide content" data-label="The Regulatory Requirement" data-speaker-notes="State the hypothetical decision rule clearly. Emphasize that the upper confidence limit, rather than the sample mean alone, must fall below the threshold." style="width:1920px;height:1080px;">
+  <h2 class="slide-title">The redevelopment decision</h2>
+  <div class="rise" style="font-size:31px;line-height:1.55;max-width:1550px;">
+    <ul class="bullets" style="margin:0;">
+      <li>Calculate the <strong>one-sided 95% upper confidence limit</strong></li>
+      <li>Apply it to the <strong>site-wide mean</strong> soil lead concentration</li>
+      <li>Compare the result with <strong>400 mg/kg</strong></li>
+    </ul>
+  </div>
+  <div class="rise" style="margin-top:34px;background:var(--color-surface);border-left:10px solid var(--color-primary);padding:28px 34px;max-width:1500px;font-size:31px;font-weight:700;line-height:1.45;box-shadow:var(--shadow-sm);">Redevelopment can proceed only when the upper confidence limit is below 400 mg/kg.</div>
+  <div class="rise" style="margin-top:28px;font-size:24px;color:color-mix(in srgb, var(--color-text) 55%, transparent);">Every sampling choice must support this decision.</div>
   <div class="page-foot"></div>
 </section>
 
-<section class="slide content" data-label="Case Study: What They Did" data-speaker-notes="Click each decision the firm made to reveal it. Some of these decisions were reasonable, one was a serious mistake -- students should start noticing which is which." style="width:1920px;height:1080px;">
-  <h2 class="slide-title">Click each decision the firm made</h2>
+<section class="slide content" data-label="Case Study: What They Did" data-speaker-notes="Reveal the four sampling choices. Ask students which choice could prevent the plan from finding contamination before identifying the depth problem." style="width:1920px;height:1080px;">
+  <h2 class="slide-title">The firm’s sampling choices</h2>
+  <div class="rise" style="margin-bottom:24px;font-size:23px;color:color-mix(in srgb, var(--color-text) 55%, transparent);">Select each choice to reveal the detail.</div>
   <div class="rise" style="display:flex;gap:calc(22px + var(--space-boost, 0) * 2px);">
     <sc-for list="{{ caseDecisions }}" as="d" hint-placeholder-count="4">
       <div class="stage-card" role="button" sc-camel-on-click="{{ d.toggle }}">
@@ -1691,10 +1704,10 @@ renderVals() {
     ];
 
     const caseDecisionData = [
-      { id: 'cd1', label: 'Sample type chosen', desc: 'Discrete core samples at 20 systematic grid points across the 2-hectare site: a reasonable choice for detecting spatial variability.' },
-      { id: 'cd2', label: 'Sample mass', desc: 'Sized using Gy\u2019s equation for the site\u2019s coarse fill material: correctly done.' },
-      { id: 'cd3', label: 'Number of samples (n)', desc: 'Calculated from pilot variance data to hit the required margin of error at 95% confidence: statistically sound.' },
-      { id: 'cd4', label: 'Sampling depth', desc: 'Every core was taken at a single fixed depth of 30 cm, for consistency and speed across the crew.' }
+      { id: 'cd1', label: 'Sample type', desc: '20 discrete cores collected on a systematic grid.' },
+      { id: 'cd2', label: 'Sample mass', desc: 'Mass calculated for the coarse fill using Gy\u2019s equation.' },
+      { id: 'cd3', label: 'Sample count', desc: 'Number based on pilot variability and the required precision.' },
+      { id: 'cd4', label: 'Sampling depth', desc: 'Every core collected at a fixed depth of 30 cm.' }
     ];
     const caseDecisions = caseDecisionData.map(d => {
       const open = (this.props.instructorMode ?? false) || !!this.state.revealed[d.id];
