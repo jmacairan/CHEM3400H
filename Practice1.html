@@ -1,0 +1,674 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Practice Questions for Midterm #1</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #52616e;
+      --page: #f2f5f7;
+      --paper: #ffffff;
+      --line: #d4dde4;
+      --accent: #145e88;
+      --accent-dark: #0b4466;
+      --accent-soft: #e9f4fa;
+      --answer: #edf7f1;
+      --answer-border: #78ad8d;
+      --focus: #f2b705;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 17px;
+      line-height: 1.5;
+    }
+
+    button, input, textarea { font: inherit; }
+
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: -5rem;
+      z-index: 20;
+      padding: .7rem 1rem;
+      background: #000;
+      color: #fff;
+    }
+
+    .skip-link:focus { top: 1rem; }
+
+    header {
+      padding: 2.2rem 1rem 1.8rem;
+      background: var(--accent-dark);
+      color: #fff;
+    }
+
+    .wrap {
+      width: min(940px, calc(100% - 2rem));
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 6vw, 3.1rem);
+      line-height: 1.08;
+    }
+
+    .subtitle {
+      margin: .45rem 0 0;
+      color: #e8f4fa;
+      font-size: 1.05rem;
+    }
+
+    nav {
+      background: #fff;
+      border-bottom: 1px solid var(--line);
+    }
+
+    nav .wrap {
+      display: flex;
+      gap: .45rem;
+      overflow-x: auto;
+      padding-top: .75rem;
+      padding-bottom: .75rem;
+    }
+
+    nav a {
+      flex: 0 0 auto;
+      min-height: 42px;
+      padding: .5rem .8rem;
+      border: 1px solid #a9c6d7;
+      border-radius: 999px;
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    nav a:hover { background: var(--accent-soft); }
+    main { padding: 1.25rem 0 4rem; }
+
+    .instructions {
+      margin: 0 0 1.25rem;
+      padding: 1rem 1.1rem;
+      background: #fff;
+      border-left: 5px solid var(--accent);
+      border-radius: .35rem;
+    }
+
+    .instructions p { margin: 0; }
+
+    .lecture {
+      margin-top: 2.2rem;
+      scroll-margin-top: 1rem;
+    }
+
+    .lecture-heading {
+      margin: 0 0 .9rem;
+      padding-bottom: .45rem;
+      border-bottom: 3px solid #a9c6d7;
+      color: var(--accent-dark);
+      font-size: 1.65rem;
+      line-height: 1.2;
+    }
+
+    .question {
+      margin: 0 0 1rem;
+      padding: 1.1rem 1.15rem;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: .55rem;
+      box-shadow: 0 2px 8px rgba(31, 50, 64, .06);
+    }
+
+    .question h3 {
+      margin: 0 0 .7rem;
+      font-size: 1.08rem;
+      line-height: 1.45;
+    }
+
+    .kind {
+      display: inline-block;
+      margin-right: .45rem;
+      padding: .12rem .45rem;
+      border-radius: .25rem;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: .82rem;
+      font-weight: 700;
+      vertical-align: .08rem;
+    }
+
+    fieldset { margin: .2rem 0 .8rem; padding: 0; border: 0; }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .choice {
+      display: flex;
+      align-items: flex-start;
+      gap: .65rem;
+      min-height: 44px;
+      margin: .35rem 0;
+      padding: .55rem .65rem;
+      border: 1px solid var(--line);
+      border-radius: .4rem;
+      cursor: pointer;
+    }
+
+    .choice:hover { background: #f7fafb; }
+    .choice:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); }
+
+    .choice input {
+      width: 1.15rem;
+      height: 1.15rem;
+      margin: .15rem 0 0;
+      accent-color: var(--accent);
+    }
+
+    .response-label {
+      display: block;
+      margin: .3rem 0 .35rem;
+      font-weight: 700;
+    }
+
+    textarea {
+      display: block;
+      width: 100%;
+      min-height: 112px;
+      resize: vertical;
+      padding: .7rem;
+      border: 2px solid #9cabb6;
+      border-radius: .4rem;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .attempt-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .8rem;
+      margin-top: .75rem;
+    }
+
+    .attempt-status { color: var(--muted); font-size: .94rem; }
+
+    .reveal-button {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding: .6rem .9rem;
+      border: 2px solid var(--accent);
+      border-radius: .4rem;
+      background: #fff;
+      color: var(--accent-dark);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .reveal-button:hover:not(:disabled) { background: var(--accent-soft); }
+
+    .reveal-button:disabled {
+      border-color: #aeb8bf;
+      color: #737f88;
+      cursor: not-allowed;
+      opacity: .75;
+    }
+
+    .answer-panel {
+      margin-top: .85rem;
+      padding: .8rem .9rem;
+      border: 1px solid var(--answer-border);
+      border-left-width: 5px;
+      border-radius: .4rem;
+      background: var(--answer);
+    }
+
+    .answer-panel[hidden] { display: none; }
+    .answer-panel p { margin: .25rem 0; }
+    .formula { font-family: "Times New Roman", Times, serif; font-size: 1.05em; white-space: nowrap; }
+
+    footer {
+      padding: 1.2rem 1rem;
+      background: #e3e9ed;
+      color: var(--muted);
+      text-align: center;
+      font-size: .94rem;
+    }
+
+    @media (max-width: 640px) {
+      body { font-size: 16px; }
+      .wrap { width: min(100% - 1rem, 940px); }
+      header { padding: 1.7rem .5rem 1.4rem; }
+      .question { padding: 1rem; }
+      .attempt-row { align-items: stretch; flex-direction: column; }
+      .reveal-button { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+    @media print {
+      body { background: #fff; font-size: 11pt; }
+      header { padding: 0 0 1rem; background: #fff; color: #000; }
+      .subtitle { color: #000; }
+      nav, .instructions, .attempt-row, .answer-panel, footer { display: none !important; }
+      .wrap { width: 100%; }
+      .question { box-shadow: none; break-inside: avoid; }
+      textarea { min-height: 70px; }
+      .lecture-heading { color: #000; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to practice questions</a>
+
+  <header>
+    <div class="wrap">
+      <h1>Practice Questions for Midterm #1</h1>
+      <p class="subtitle">CHEM3400H · Lectures 1–6</p>
+    </div>
+  </header>
+
+  <nav aria-label="Lecture sections">
+    <div class="wrap">
+      <a href="#lecture-1">Lecture 1</a>
+      <a href="#lecture-2">Lecture 2</a>
+      <a href="#lecture-3">Lecture 3</a>
+      <a href="#lecture-4">Lecture 4</a>
+      <a href="#lecture-5">Lecture 5</a>
+      <a href="#lecture-6">Lecture 6</a>
+    </div>
+  </nav>
+
+  <main id="main" class="wrap">
+    <div class="instructions"><p>Select or write an answer first. The reveal button unlocks after you attempt the question.</p></div>
+
+    <section class="lecture" id="lecture-1" aria-labelledby="lecture-1-heading">
+      <h2 class="lecture-heading" id="lecture-1-heading">Lecture 1 · Sampling Foundations</h2>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>1.1 Which step normally causes the most variation when measuring a heterogeneous soil?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 1.1</legend>
+          <label class="choice"><input type="radio" name="q11"><span>A. Instrument measurement</span></label>
+          <label class="choice"><input type="radio" name="q11"><span>B. Field sampling</span></label>
+          <label class="choice"><input type="radio" name="q11"><span>C. Unit conversion</span></label>
+          <label class="choice"><input type="radio" name="q11"><span>D. Final reporting</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q11-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q11-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q11-answer" tabindex="-1" hidden><p><strong>B. Field sampling.</strong> A small field sample may not represent a heterogeneous site.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>1.2 What is a composite sample?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 1.2</legend>
+          <label class="choice"><input type="radio" name="q12"><span>A. One sample from one location</span></label>
+          <label class="choice"><input type="radio" name="q12"><span>B. Several samples combined into one sample</span></label>
+          <label class="choice"><input type="radio" name="q12"><span>C. A sample with no analyte</span></label>
+          <label class="choice"><input type="radio" name="q12"><span>D. A sample used only for calibration</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q12-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q12-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q12-answer" tabindex="-1" hidden><p><strong>B.</strong> A composite sample combines material collected across space or time.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>1.3 A representative sample should:</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 1.3</legend>
+          <label class="choice"><input type="radio" name="q13"><span>A. Match the important properties of the target population</span></label>
+          <label class="choice"><input type="radio" name="q13"><span>B. Come from the easiest location</span></label>
+          <label class="choice"><input type="radio" name="q13"><span>C. Always be a single grab sample</span></label>
+          <label class="choice"><input type="radio" name="q13"><span>D. Contain the highest analyte concentration</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q13-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q13-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q13-answer" tabindex="-1" hidden><p><strong>A.</strong> The sample should reflect the population used for the decision.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>1.4 A fuel spill has visibly stained soil leading toward a ditch. Choose a sampling strategy and explain where samples should be collected.</h3>
+        <label class="response-label" for="q14-response">Your answer</label><textarea id="q14-response" aria-describedby="q14-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q14-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q14-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q14-answer" tabindex="-1" hidden><p>Use <strong>judgmental or biased sampling</strong>. Sample the stained soil, the path toward the ditch, and locations just beyond the visible spill.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>1.5 Explain the difference between constitutional and distributional heterogeneity.</h3>
+        <label class="response-label" for="q15-response">Your answer</label><textarea id="q15-response" aria-describedby="q15-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q15-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q15-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q15-answer" tabindex="-1" hidden><p><strong>Constitutional heterogeneity</strong> is variation between individual particles. <strong>Distributional heterogeneity</strong> is non-random separation or grouping of particles within the lot.</p></div>
+      </article>
+    </section>
+
+    <section class="lecture" id="lecture-2" aria-labelledby="lecture-2-heading">
+      <h2 class="lecture-heading" id="lecture-2-heading">Lecture 2 · Sampling Statistics</h2>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>2.1 Fifteen soil results are available. Which mean can be calculated directly?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 2.1</legend>
+          <label class="choice"><input type="radio" name="q21"><span>A. Population mean</span></label>
+          <label class="choice"><input type="radio" name="q21"><span>B. Sample mean</span></label>
+          <label class="choice"><input type="radio" name="q21"><span>C. Both means exactly</span></label>
+          <label class="choice"><input type="radio" name="q21"><span>D. Neither mean</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q21-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q21-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q21-answer" tabindex="-1" hidden><p><strong>B. Sample mean.</strong> The population mean is estimated from the sampled results.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>2.2 A 95% confidence interval is 42–50 mg/kg. What does it describe?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 2.2</legend>
+          <label class="choice"><input type="radio" name="q22"><span>A. The range containing every individual result</span></label>
+          <label class="choice"><input type="radio" name="q22"><span>B. A plausible range for the true population mean</span></label>
+          <label class="choice"><input type="radio" name="q22"><span>C. The exact range of the population</span></label>
+          <label class="choice"><input type="radio" name="q22"><span>D. The range for the next result</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q22-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q22-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q22-answer" tabindex="-1" hidden><p><strong>B.</strong> A confidence interval estimates the population mean, not individual results.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>2.3 If sample size increases from 10 to 40 and variability stays constant, the standard error becomes approximately:</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 2.3</legend>
+          <label class="choice"><input type="radio" name="q23"><span>A. One-quarter as large</span></label>
+          <label class="choice"><input type="radio" name="q23"><span>B. One-half as large</span></label>
+          <label class="choice"><input type="radio" name="q23"><span>C. Twice as large</span></label>
+          <label class="choice"><input type="radio" name="q23"><span>D. Four times as large</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q23-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q23-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q23-answer" tabindex="-1" hidden><p><strong>B.</strong> <span class="formula">SE = s/√n</span>. Increasing <span class="formula">n</span> by four reduces <span class="formula">SE</span> by two.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>2.4 Why is the population mean for a soil site estimated instead of measured directly? Give one practical reason.</h3>
+        <label class="response-label" for="q24-response">Your answer</label><textarea id="q24-response" aria-describedby="q24-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q24-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q24-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q24-answer" tabindex="-1" hidden><p>Measuring it directly would require collecting and analyzing all soil in the defined area and depth. That is impractical because of the amount of material, time, and cost.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>2.5 A set of 16 results has a standard deviation of 8.0 mg/kg. Calculate the standard error.</h3>
+        <label class="response-label" for="q25-response">Your calculation</label><textarea id="q25-response" aria-describedby="q25-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q25-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q25-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q25-answer" tabindex="-1" hidden><p><span class="formula">SE = s/√n = 8.0/√16 = 2.0 mg/kg</span>.</p></div>
+      </article>
+    </section>
+
+    <section class="lecture" id="lecture-3" aria-labelledby="lecture-3-heading">
+      <h2 class="lecture-heading" id="lecture-3-heading">Lecture 3 · Designing a Sampling Plan</h2>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>3.1 In simple random sampling:</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 3.1</legend>
+          <label class="choice"><input type="radio" name="q31"><span>A. Every location has an equal chance of selection</span></label>
+          <label class="choice"><input type="radio" name="q31"><span>B. Only visibly contaminated locations are selected</span></label>
+          <label class="choice"><input type="radio" name="q31"><span>C. The easiest locations are selected</span></label>
+          <label class="choice"><input type="radio" name="q31"><span>D. Samples are always combined</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q31-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q31-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q31-answer" tabindex="-1" hidden><p><strong>A.</strong> Selection is made using a random process rather than visual judgment or convenience.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>3.2 Which description best matches systematic sampling?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 3.2</legend>
+          <label class="choice"><input type="radio" name="q32"><span>A. Sampling at regular distances after a starting point</span></label>
+          <label class="choice"><input type="radio" name="q32"><span>B. Sampling only where contamination is visible</span></label>
+          <label class="choice"><input type="radio" name="q32"><span>C. Sampling the easiest locations</span></label>
+          <label class="choice"><input type="radio" name="q32"><span>D. Combining every sample into one</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q32-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q32-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q32-answer" tabindex="-1" hidden><p><strong>A.</strong> A regular spacing or interval is used.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>3.3 A site has separate sandy and clay-rich zones. Which strategy ensures both zones are sampled?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 3.3</legend>
+          <label class="choice"><input type="radio" name="q33"><span>A. Convenience sampling</span></label>
+          <label class="choice"><input type="radio" name="q33"><span>B. Stratified sampling</span></label>
+          <label class="choice"><input type="radio" name="q33"><span>C. One grab sample</span></label>
+          <label class="choice"><input type="radio" name="q33"><span>D. Judgmental sampling of one zone</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q33-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q33-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q33-answer" tabindex="-1" hidden><p><strong>B.</strong> Treat each zone as a stratum and collect samples from both.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>3.4 A field contains an upland area and a low wet area. Choose a sampling strategy that represents both areas and explain it.</h3>
+        <label class="response-label" for="q34-response">Your answer</label><textarea id="q34-response" aria-describedby="q34-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q34-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q34-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q34-answer" tabindex="-1" hidden><p>Use <strong>stratified sampling</strong>. Define the upland and wet areas as separate strata, then collect samples from each area.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>3.5 A decision concerns soil from 0–60 cm, but samples were taken only from 0–15 cm. State the problem and one correction.</h3>
+        <label class="response-label" for="q35-response">Your answer</label><textarea id="q35-response" aria-describedby="q35-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q35-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q35-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q35-answer" tabindex="-1" hidden><p>The sampled depth does not represent the target population. Add samples from the deeper part of the 0–60 cm interval.</p></div>
+      </article>
+    </section>
+
+    <section class="lecture" id="lecture-4" aria-labelledby="lecture-4-heading">
+      <h2 class="lecture-heading" id="lecture-4-heading">Lecture 4 · Particle Sampling and Review</h2>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>4.1 Required sample mass is proportional to particle diameter cubed. If diameter is cut in half, the new mass is:</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 4.1</legend>
+          <label class="choice"><input type="radio" name="q41"><span>A. One-half of the original</span></label>
+          <label class="choice"><input type="radio" name="q41"><span>B. One-quarter of the original</span></label>
+          <label class="choice"><input type="radio" name="q41"><span>C. One-eighth of the original</span></label>
+          <label class="choice"><input type="radio" name="q41"><span>D. Eight times the original</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q41-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q41-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q41-answer" tabindex="-1" hidden><p><strong>C.</strong> <span class="formula">(1/2)<sup>3</sup> = 1/8</span>.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>4.2 If all other factors stay constant, collecting a larger sample mass generally:</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 4.2</legend>
+          <label class="choice"><input type="radio" name="q42"><span>A. Increases fundamental sampling error</span></label>
+          <label class="choice"><input type="radio" name="q42"><span>B. Decreases fundamental sampling error</span></label>
+          <label class="choice"><input type="radio" name="q42"><span>C. Has no effect</span></label>
+          <label class="choice"><input type="radio" name="q42"><span>D. Changes only instrumental error</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q42-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q42-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q42-answer" tabindex="-1" hidden><p><strong>B.</strong> A larger sample includes more particles and generally represents the lot better.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>4.3 Why can grinding reduce fundamental sampling error?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 4.3</legend>
+          <label class="choice"><input type="radio" name="q43"><span>A. It reduces the top particle diameter</span></label>
+          <label class="choice"><input type="radio" name="q43"><span>B. It increases the analyte concentration</span></label>
+          <label class="choice"><input type="radio" name="q43"><span>C. It removes all heterogeneity</span></label>
+          <label class="choice"><input type="radio" name="q43"><span>D. It eliminates instrumental noise</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q43-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q43-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q43-answer" tabindex="-1" hidden><p><strong>A.</strong> Fundamental sampling error has a strong dependence on particle diameter.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>4.4 Grinding reduces particle diameter from 5.0 mm to 2.5 mm. Calculate the new required sample mass as a fraction of the original mass.</h3>
+        <label class="response-label" for="q44-response">Your calculation</label><textarea id="q44-response" aria-describedby="q44-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q44-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q44-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q44-answer" tabindex="-1" hidden><p><span class="formula">(2.5/5.0)<sup>3</sup> = 0.125 = 1/8</span> of the original mass.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>4.5 Give one practical way to reduce fundamental sampling error and explain why it works. (Hint: particle size or sample mass.)</h3>
+        <label class="response-label" for="q45-response">Your answer</label><textarea id="q45-response" aria-describedby="q45-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q45-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q45-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q45-answer" tabindex="-1" hidden><p>Reduce particle size by grinding, or collect a larger sample mass. Either change helps the sample represent more of the particles in the lot.</p></div>
+      </article>
+    </section>
+
+    <section class="lecture" id="lecture-5" aria-labelledby="lecture-5-heading">
+      <h2 class="lecture-heading" id="lecture-5-heading">Lecture 5 · Chromatography Fundamentals</h2>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>5.1 Which phase moves through a chromatographic column?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 5.1</legend>
+          <label class="choice"><input type="radio" name="q51"><span>A. Mobile phase</span></label>
+          <label class="choice"><input type="radio" name="q51"><span>B. Stationary phase</span></label>
+          <label class="choice"><input type="radio" name="q51"><span>C. Detector phase</span></label>
+          <label class="choice"><input type="radio" name="q51"><span>D. Sample phase</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q51-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q51-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q51-answer" tabindex="-1" hidden><p><strong>A. Mobile phase.</strong> The stationary phase remains in place.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>5.2 For <span class="formula">K = C<sub>s</sub>/C<sub>m</sub></span>, a larger <span class="formula">K</span> generally means the solute:</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 5.2</legend>
+          <label class="choice"><input type="radio" name="q52"><span>A. Spends less time in the stationary phase</span></label>
+          <label class="choice"><input type="radio" name="q52"><span>B. Elutes with the mobile phase</span></label>
+          <label class="choice"><input type="radio" name="q52"><span>C. Spends more time in the stationary phase and elutes later</span></label>
+          <label class="choice"><input type="radio" name="q52"><span>D. Must be analyzed by gas chromatography</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q52-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q52-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q52-answer" tabindex="-1" hidden><p><strong>C.</strong> A larger distribution coefficient indicates greater preference for the stationary phase.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>5.3 A solute has <span class="formula">t<sub>R</sub> = 4.00 min</span> and <span class="formula">t<sub>M</sub> = 1.00 min</span>. What is <span class="formula">k′</span>?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 5.3</legend>
+          <label class="choice"><input type="radio" name="q53"><span>A. 0.25</span></label>
+          <label class="choice"><input type="radio" name="q53"><span>B. 1.00</span></label>
+          <label class="choice"><input type="radio" name="q53"><span>C. 3.00</span></label>
+          <label class="choice"><input type="radio" name="q53"><span>D. 4.00</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q53-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q53-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q53-answer" tabindex="-1" hidden><p><strong>C.</strong> <span class="formula">k′ = (4.00 − 1.00)/1.00 = 3.00</span>.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>5.4 Solutes X, Y, and Z have <span class="formula">k′</span> values of 0.50, 4.0, and 1.5. Place them in elution order and explain.</h3>
+        <label class="response-label" for="q54-response">Your answer</label><textarea id="q54-response" aria-describedby="q54-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q54-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q54-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q54-answer" tabindex="-1" hidden><p><strong>X, Z, Y.</strong> A smaller <span class="formula">k′</span> means less time in the stationary phase and earlier elution.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>5.5 Two analytes have <span class="formula">t<sub>M</sub> = 1.50 min</span>. A elutes at 4.50 min and B at 7.50 min. Calculate both <span class="formula">k′</span> values and <span class="formula">α</span>.</h3>
+        <label class="response-label" for="q55-response">Your calculation</label><textarea id="q55-response" aria-describedby="q55-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q55-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q55-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q55-answer" tabindex="-1" hidden><p><span class="formula">k′<sub>A</sub> = (4.50 − 1.50)/1.50 = 2.00</span>; <span class="formula">k′<sub>B</sub> = (7.50 − 1.50)/1.50 = 4.00</span>; <span class="formula">α = 4.00/2.00 = 2.00</span>.</p></div>
+      </article>
+    </section>
+
+    <section class="lecture" id="lecture-6" aria-labelledby="lecture-6-heading">
+      <h2 class="lecture-heading" id="lecture-6-heading">Lecture 6 · Plate Theory and Efficiency</h2>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>6.1 At the same retention time, a narrower peak gives:</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 6.1</legend>
+          <label class="choice"><input type="radio" name="q61"><span>A. A smaller plate number</span></label>
+          <label class="choice"><input type="radio" name="q61"><span>B. A larger plate number</span></label>
+          <label class="choice"><input type="radio" name="q61"><span>C. No change in plate number</span></label>
+          <label class="choice"><input type="radio" name="q61"><span>D. A larger dead time</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q61-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q61-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q61-answer" tabindex="-1" hidden><p><strong>B.</strong> Peak width is in the denominator of the plate-number equation.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>6.2 Which result indicates greater column efficiency?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 6.2</legend>
+          <label class="choice"><input type="radio" name="q62"><span>A. Larger plate height</span></label>
+          <label class="choice"><input type="radio" name="q62"><span>B. Smaller plate number</span></label>
+          <label class="choice"><input type="radio" name="q62"><span>C. Smaller plate height</span></label>
+          <label class="choice"><input type="radio" name="q62"><span>D. Wider peaks</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q62-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q62-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q62-answer" tabindex="-1" hidden><p><strong>C.</strong> Greater efficiency means larger <span class="formula">N</span>, smaller <span class="formula">H</span>, and narrower peaks.</p></div>
+      </article>
+
+      <article class="question" data-question-type="mc">
+        <h3><span class="kind">Multiple choice</span>6.3 A much larger injection makes a peak broader and shifts its retention time. What should be tried first?</h3>
+        <fieldset><legend class="sr-only">Choose one answer for question 6.3</legend>
+          <label class="choice"><input type="radio" name="q63"><span>A. Inject more sample</span></label>
+          <label class="choice"><input type="radio" name="q63"><span>B. Reduce the injected amount or concentration</span></label>
+          <label class="choice"><input type="radio" name="q63"><span>C. Report more decimal places</span></label>
+          <label class="choice"><input type="radio" name="q63"><span>D. Ignore the dead time</span></label>
+        </fieldset>
+        <div class="attempt-row"><span class="attempt-status" id="q63-status">Choose an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q63-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q63-answer" tabindex="-1" hidden><p><strong>B.</strong> Reducing the injection helps prevent column overload.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>6.4 A peak has <span class="formula">t<sub>R</sub> = 5.00 min</span> and baseline width <span class="formula">w = 0.25 min</span> on a 20.0 cm column. Calculate <span class="formula">N</span> and <span class="formula">H</span> in micrometres. Compare with a system having <span class="formula">H = 50 μm</span>.</h3>
+        <label class="response-label" for="q64-response">Your calculation and comparison</label><textarea id="q64-response" aria-describedby="q64-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q64-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q64-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q64-answer" tabindex="-1" hidden><p><span class="formula">N = 16(5.00/0.25)<sup>2</sup> = 6400</span>. <span class="formula">H = 20.0 cm/6400 = 0.003125 cm = 31.25 μm</span>. The first system is more efficient because it has the smaller plate height and should give narrower peaks.</p></div>
+      </article>
+
+      <article class="question" data-question-type="written">
+        <h3><span class="kind">Written</span>6.5 A peak has <span class="formula">t<sub>R</sub> = 6.00 min</span> and half-height width <span class="formula">w<sub>1/2</sub> = 0.15 min</span>. Calculate <span class="formula">N</span>.</h3>
+        <label class="response-label" for="q65-response">Your calculation</label><textarea id="q65-response" aria-describedby="q65-status"></textarea>
+        <div class="attempt-row"><span class="attempt-status" id="q65-status">Write an answer to unlock the reveal.</span><button class="reveal-button" type="button" aria-controls="q65-answer" aria-expanded="false" disabled>Reveal answer</button></div>
+        <div class="answer-panel" id="q65-answer" tabindex="-1" hidden><p><span class="formula">N = 5.54(6.00/0.15)<sup>2</sup> = 5.54(40)<sup>2</sup> = 8864</span>.</p></div>
+      </article>
+    </section>
+  </main>
+
+  <footer>CHEM3400H · Practice Questions for Midterm #1</footer>
+
+  <script>
+    document.querySelectorAll('.question').forEach((question) => {
+      const type = question.dataset.questionType;
+      const button = question.querySelector('.reveal-button');
+      const status = question.querySelector('.attempt-status');
+      const answer = document.getElementById(button.getAttribute('aria-controls'));
+
+      const attempted = () => {
+        if (type === 'mc') return Boolean(question.querySelector('input[type="radio"]:checked'));
+        return question.querySelector('textarea').value.trim().length > 0;
+      };
+
+      const updateUnlock = () => {
+        const ready = attempted();
+        button.disabled = !ready;
+        status.textContent = ready
+          ? 'Attempt recorded. You can reveal the answer.'
+          : type === 'mc'
+            ? 'Choose an answer to unlock the reveal.'
+            : 'Write an answer to unlock the reveal.';
+      };
+
+      question.querySelectorAll('input[type="radio"]').forEach((input) => input.addEventListener('change', updateUnlock));
+      const response = question.querySelector('textarea');
+      if (response) response.addEventListener('input', updateUnlock);
+
+      button.addEventListener('click', () => {
+        if (!attempted()) return;
+        const willShow = answer.hidden;
+        answer.hidden = !willShow;
+        button.setAttribute('aria-expanded', String(willShow));
+        button.textContent = willShow ? 'Hide answer' : 'Reveal answer';
+        if (willShow) answer.focus();
+      });
+
+      updateUnlock();
+    });
+  </script>
+</body>
+</html>
