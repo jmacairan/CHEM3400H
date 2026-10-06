@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CHEM 3400H Midterm I interactive solutions.">
+  <title>CHEM 3400H Midterm I Solutions</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23102a43'/%3E%3Cpath d='M4 23h5l3-14 4 17 3-10 2 7h7' fill='none' stroke='%23ffbd2e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <style>
+  :root {
+    --navy: #102a43;
+    --navy-2: #1d466f;
+    --blue: #2475a8;
+    --cyan: #35b8c6;
+    --gold: #ffbd2e;
+    --ink: #14212e;
+    --muted: #596978;
+    --line: #d7e1ea;
+    --paper: #ffffff;
+    --wash: #f1f5f8;
+    --solution: #eaf5fb;
+    --shadow: 0 12px 34px rgba(16, 42, 67, 0.10);
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    background: linear-gradient(180deg, #eaf2f8 0, #f7f9fb 420px, var(--wash) 100%);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 1rem;
+    line-height: 1.58;
+  }
+  button { font: inherit; cursor: pointer; }
+  button:focus-visible, summary:focus-visible {
+    outline: 3px solid rgba(53, 184, 198, .45);
+    outline-offset: 3px;
+  }
+  .toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(16, 42, 67, .97);
+    color: white;
+    box-shadow: 0 3px 18px rgba(4, 20, 35, .22);
+    backdrop-filter: blur(12px);
+  }
+  .toolbar-inner {
+    width: min(1120px, calc(100% - 2rem));
+    min-height: 64px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .section-links, .actions {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+  }
+  .section-links a, .toolbar button {
+    min-height: 40px;
+    padding: .55rem .78rem;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: .65rem;
+    color: white;
+    background: rgba(255,255,255,.09);
+    text-decoration: none;
+    font-weight: 760;
+  }
+  .section-links a:hover, .toolbar button:hover { background: rgba(255,255,255,.17); }
+  .toolbar .accent { color: var(--navy); background: var(--gold); border-color: var(--gold); }
+  .status { color: #c9dceb; font-size: .9rem; font-weight: 760; white-space: nowrap; }
+  .question-rail-wrap {
+    position: sticky;
+    top: 64px;
+    z-index: 30;
+    background: rgba(235, 242, 248, .96);
+    border-bottom: 1px solid #cbd9e5;
+    backdrop-filter: blur(10px);
+  }
+  .question-rail {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: .6rem 0;
+    display: flex;
+    gap: .42rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+  .rail-button {
+    flex: 0 0 auto;
+    min-width: 48px;
+    min-height: 38px;
+    padding: .42rem .65rem;
+    border: 1px solid #c5d7e5;
+    border-radius: .6rem;
+    color: var(--navy);
+    background: white;
+    font-weight: 800;
+  }
+  .rail-button.current { color: white; background: var(--blue); border-color: var(--blue); }
+  .rail-button.revealed { color: var(--navy); background: #d7f1f3; border-color: #7fcbd3; }
+  main {
+    width: min(980px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 2rem 0 5rem;
+  }
+  .exam-section + .exam-section { margin-top: 3rem; }
+  h2 {
+    margin: 0 0 1.1rem;
+    padding: .15rem 0 .65rem;
+    border-bottom: 4px solid var(--navy);
+    color: var(--navy);
+    font-size: clamp(1.7rem, 4vw, 2.35rem);
+    line-height: 1.1;
+    letter-spacing: -.025em;
+  }
+  .cards { display: grid; gap: 1.15rem; }
+  .question-card {
+    scroll-margin-top: 130px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: var(--paper);
+    box-shadow: 0 8px 26px rgba(16,42,67,.06);
+    transition: border-color .16s ease, box-shadow .16s ease;
+  }
+  .question-card.current {
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 4px rgba(53,184,198,.13), var(--shadow);
+  }
+  .question-card > h3,
+  .question-card > p,
+  .question-card > ol,
+  .question-card > ul {
+    margin-left: clamp(1rem, 3vw, 1.6rem);
+    margin-right: clamp(1rem, 3vw, 1.6rem);
+  }
+  h3 {
+    margin-top: 0;
+    margin-bottom: .75rem;
+    padding-top: clamp(1.1rem, 3vw, 1.6rem);
+    color: var(--ink);
+    font-size: clamp(1.08rem, 2.4vw, 1.28rem);
+    line-height: 1.45;
+  }
+  .options {
+    margin-top: .5rem;
+    margin-bottom: 1.1rem;
+    padding-left: 2.4rem;
+  }
+  .options li {
+    margin: .42rem 0;
+    padding: .52rem .7rem;
+    border: 1px solid #dbe4ec;
+    border-radius: .65rem;
+    background: #fbfcfd;
+  }
+  .options li::marker { color: var(--navy); font-weight: 850; }
+  details {
+    margin-top: 1rem;
+    border-top: 1px solid #bdd2e3;
+    background: linear-gradient(180deg, #f2f8fc 0, var(--solution) 100%);
+  }
+  summary {
+    min-height: 54px;
+    padding: .85rem clamp(1rem, 3vw, 1.6rem);
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    color: var(--navy);
+    font-weight: 850;
+    list-style: none;
+    cursor: pointer;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "+";
+    width: 28px;
+    height: 28px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    color: white;
+    background: var(--blue);
+    font-size: 1.15rem;
+    line-height: 1;
+  }
+  details[open] summary::before { content: "−"; }
+  details > :not(summary) {
+    margin-left: clamp(1rem, 3vw, 1.6rem);
+    margin-right: clamp(1rem, 3vw, 1.6rem);
+  }
+  details > :last-child { margin-bottom: 1.4rem; }
+  details p:first-of-type strong { color: #08724b; font-size: 1.05rem; }
+  .equation {
+    margin: .85rem clamp(1rem, 3vw, 1.6rem);
+    padding: .9rem 1rem;
+    overflow-x: auto;
+    border-left: 4px solid var(--cyan);
+    color: var(--navy);
+    background: rgba(255,255,255,.9);
+    font-family: "Cambria Math", Cambria, Georgia, serif;
+    font-size: clamp(1.03rem, 2.6vw, 1.22rem);
+    font-weight: 650;
+    text-align: center;
+  }
+  .math { font-family: "Cambria Math", Cambria, Georgia, serif; }
+  .frac {
+    display: inline-grid;
+    grid-template-rows: auto auto;
+    margin: 0 .18em;
+    vertical-align: middle;
+    line-height: 1.1;
+    text-align: center;
+  }
+  .frac > span:first-child { padding: 0 .16em .08em; border-bottom: 1.5px solid currentColor; }
+  .frac > span:last-child { padding: .08em .16em 0; }
+  sub, sup { line-height: 0; }
+  details ul { padding-left: 1.35rem; }
+  details li + li { margin-top: .32rem; }
+  .focus-controls {
+    display: none;
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    z-index: 60;
+    transform: translateX(-50%);
+    gap: .5rem;
+    padding: .55rem;
+    border-radius: .85rem;
+    background: rgba(16,42,67,.97);
+    box-shadow: var(--shadow);
+  }
+  .focus-controls button {
+    min-width: 96px;
+    min-height: 44px;
+    padding: .55rem .8rem;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: .6rem;
+    color: white;
+    background: rgba(255,255,255,.09);
+    font-weight: 800;
+  }
+  body.focus-mode main { min-height: calc(100vh - 130px); display: grid; align-items: center; padding-bottom: 7rem; }
+  body.focus-mode .exam-section { display: contents; }
+  body.focus-mode h2, body.focus-mode .question-card:not(.current) { display: none; }
+  body.focus-mode .focus-controls { display: flex; }
+  body.focus-mode .question-card.current { width: 100%; max-width: 980px; margin: 0 auto; }
+  @media (max-width: 860px) {
+    .toolbar-inner { align-items: stretch; flex-direction: column; padding: .65rem 0; }
+    .section-links, .actions { justify-content: center; }
+    .question-rail-wrap { top: 118px; }
+    .question-card { scroll-margin-top: 180px; }
+  }
+  @media (max-width: 600px) {
+    .toolbar { position: static; }
+    .question-rail-wrap { top: 0; }
+    .toolbar-inner, .question-rail, main { width: min(100% - 1rem, 980px); }
+    .section-links { display: grid; grid-template-columns: repeat(3, 1fr); }
+    .actions { display: grid; grid-template-columns: repeat(4, 1fr); }
+    .section-links a, .toolbar button { padding: .5rem .35rem; text-align: center; font-size: .88rem; }
+    .status { display: none; }
+    main { padding-top: 1rem; }
+    h2 { font-size: 1.55rem; }
+    .question-card { border-radius: 14px; }
+    .focus-controls { width: calc(100% - 1rem); justify-content: center; }
+    .focus-controls button { min-width: 0; flex: 1; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+  }
+  @media print {
+    @page { margin: .65in; }
+    body { background: white; font-size: 10.5pt; }
+    .toolbar, .question-rail-wrap, .focus-controls { display: none !important; }
+    main { width: 100%; padding: 0; }
+    .exam-section + .exam-section { margin-top: .35in; }
+    h2 { break-after: avoid; color: black; border-color: black; }
+    .question-card { break-inside: avoid; box-shadow: none; border-color: #b8c1ca; }
+    details:not([open]) > :not(summary) { display: block !important; }
+    summary { display: none; }
+    details { border-top: 1px solid #aaa; background: #f7f7f7; }
+  }
+</style>
+</head>
+<body>
+  <header class="toolbar">
+    <div class="toolbar-inner">
+      <nav class="section-links" aria-label="Sections">
+        <a href="#part-a">Part A</a>
+        <a href="#part-b">Part B</a>
+        <a href="#bonus">Bonus</a>
+      </nav>
+      <div class="actions" aria-label="Solution controls">
+        <span class="status" id="status" aria-live="polite"></span>
+        <button id="focusButton" type="button" aria-pressed="false">Focus</button>
+        <button id="hideAll" type="button">Hide all</button>
+        <button id="revealAll" class="accent" type="button">Reveal all</button>
+        <button id="printButton" type="button">Print</button>
+      </div>
+    </div>
+  </header>
+  <div class="question-rail-wrap"><nav class="question-rail" id="questionRail" aria-label="Questions"></nav></div>
+  <main><section class="exam-section" aria-labelledby="part-a"><h2 id="part-a">Part A Multiple Choice</h2><div class="cards"><article class="question-card" id="question-1" data-label="Q1"><h3>Q1. Which of the following normally contributes the largest share of total measurement variance for a heterogeneous soil?</h3>
+<ol class="options" type="A"><li>Instrumental measurement</li><li>Field sampling</li><li>Sample preparation</li><li>Unit conversion</li><li>Final data reporting</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>B. Field sampling</strong></p>
+<p>For a heterogeneous soil, differences among locations and particles usually make field sampling the largest contribution to total measurement variance. Instrumental variance is often much smaller than the variance introduced before the sample reaches the instrument.</p>
+</details></article>
+
+<article class="question-card" id="question-2" data-label="Q2"><h3>Q2. Which of the following best describes a composite sample?</h3>
+<ol class="options" type="A"><li>A single grab sample collected at one point in time</li><li>A mixture of multiple samples collected across space or time</li><li>A random selection of clusters that are sampled completely</li><li>A control sample collected to detect contamination</li><li>A blank sample prepared in the laboratory</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>B. A mixture of multiple samples collected across space or time</strong></p>
+<p>A composite sample combines two or more individual samples or increments into one sample for analysis. The result represents an average over the locations or times included in the composite.</p>
+</details></article>
+
+<article class="question-card" id="question-3" data-label="Q3"><h3>Q3. Under simplified Gy scaling, required sample mass is proportional to top particle diameter cubed. If the diameter is reduced from 5.0 to 2.5 mm, the required mass is:</h3>
+<ol class="options" type="A"><li>One-half of the original</li><li>One-quarter of the original</li><li>One-eighth of the original</li><li>Two times the original</li><li>Eight times the original</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>C. One-eighth of the original</strong></p>
+<div class="equation"><span class="frac"><span>M<sub>2</sub></span><span>M<sub>1</sub></span></span>=(<span class="frac"><span>d<sub>2</sub></span><span>d<sub>1</sub></span></span>)<sup>3</sup> =(<span class="frac"><span>2.5</span><span>5.0</span></span>)<sup>3</sup> =(<span class="frac"><span>1</span><span>2</span></span>)<sup>3</sup> =<span class="frac"><span>1</span><span>8</span></span></div>
+
+
+</details></article>
+
+<article class="question-card" id="question-4" data-label="Q4"><h3>Q4. A 95 percent confidence interval for a population mean is 46 to 54 mg per kg. Which statement is correct?</h3>
+<ol class="options" type="A"><li>Ninety-five percent of individual results must fall between 46 and 54 mg per kg</li><li>The next result has a 95 percent chance of falling between 46 and 54 mg per kg</li><li>The interval provides a plausible range for the true population mean</li><li>Exactly 95 percent of the population lies in the interval</li><li>The interval proves that the sample mean equals the population mean</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>C. The interval provides a plausible range for the true population mean</strong></p>
+<p>The interval estimates the population mean, not the range containing individual observations. In repeated sampling, approximately 95 percent of intervals constructed by the same procedure would contain the true population mean.</p>
+</details></article>
+
+<article class="question-card" id="question-5" data-label="Q5"><h3>Q5. If the desired margin of error is cut in half while the confidence level and planning estimate of variability stay fixed, the planned sample size should be approximately:</h3>
+<ol class="options" type="A"><li>One-quarter as large</li><li>One-half as large</li><li>Twice as large</li><li>Four times as large</li><li>Eight times as large</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>D. Four times as large</strong></p>
+<p>Because</p>
+<div class="equation">n<sub>0</sub>=(<span class="frac"><span>z s<sub>0</sub></span><span>E</span></span>)<sup>2</sup>,</div>
+
+
+<p>sample size is proportional to <span class="math">1/E<sup>2</sup></span>. Replacing <span class="math">E</span> with <span class="math">E/2</span> multiplies the required sample size by <span class="math">2<sup>2</sup>=4</span>.</p>
+</details></article>
+
+<article class="question-card" id="question-6" data-label="Q6"><h3>Q6. In the Data Quality Objectives process, which of the following should be defined before choosing sampling locations and sample numbers?</h3>
+<ol class="options" type="A"><li>Picking sample locations closest to a Starbucks</li><li>The decision, target population, and tolerable error</li><li>The easiest locations to access</li><li>The final sample labels</li><li>The chromatographic stationary phase</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>B. The decision, target population, and tolerable error</strong></p>
+<p>The sampling design must follow from the decision that the data will support, the population to which the conclusion will apply, and the amount of uncertainty or decision error that can be tolerated.</p>
+</details></article>
+
+<article class="question-card" id="question-7" data-label="Q7"><h3>Q7. Which sample is taken to the site and opened or handled there to check whether contamination was introduced during sample collection?</h3>
+<ol class="options" type="A"><li>Trip blank</li><li>Field duplicate</li><li>Field blank</li><li>Calibration standard</li><li>Unknown field sample</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>C. Field blank</strong></p>
+<p>A field blank is exposed to field conditions and handled at the sampling site. Contamination detected in it can indicate contamination introduced during field handling or collection. A trip blank travels with the samples but normally remains unopened.</p>
+</details></article>
+
+<article class="question-card" id="question-8" data-label="Q8"><h3>Q8. At a former battery site, only soil from 0 to 30 cm was sampled even though records suggest buried waste near 80 cm. Which statement best describes the problem?</h3>
+<ol class="options" type="A"><li>The sampled depth does not match the target population for the redevelopment decision</li><li>The confidence interval is automatically invalid</li><li>Too many sample depths were included</li><li>The analytical method is necessarily biased high</li><li>The samples should all be composited before analysis</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>A. The sampled depth does not match the target population for the redevelopment decision</strong></p>
+<p>The sampling design excludes the depth where buried contamination may occur. Even precise and analytically correct results from 0–30 cm would not represent the full soil profile relevant to redevelopment.</p>
+</details></article>
+
+<article class="question-card" id="question-9" data-label="Q9"><h3>Q9. For a solute with distribution coefficient K = Cₛ/Cₘ, a larger K generally means the solute:</h3>
+<ol class="options" type="A"><li>Spends less time in the stationary phase and elutes earlier</li><li>Has no interaction with either phase</li><li>Moves at the same speed as the mobile phase</li><li>Spends more time in the stationary phase and elutes later</li><li>Must be analyzed by gas chromatography</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>D. Spends more time in the stationary phase and elutes later</strong></p>
+<p>A larger <span class="math">K=C<sub>s</sub>/C<sub>m</sub></span> indicates a greater equilibrium concentration in the stationary phase relative to the mobile phase. The solute is therefore retained more strongly and moves through the column more slowly.</p>
+</details></article>
+
+<article class="question-card" id="question-10" data-label="Q10"><h3>Q10. Two solutes have dead time tₘ = 1.00 minute and retention times of 3.00 and 7.00 minutes. What is the selectivity factor α = k′₂/k′₁?</h3>
+<ol class="options" type="A"><li>1.50</li><li>2.00</li><li>3.00</li><li>4.00</li><li>6.00</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>C. 3.00</strong></p>
+<div class="equation">k'<sub>1</sub>=<span class="frac"><span>3.00-1.00</span><span>1.00</span></span>=2.00</div>
+
+
+
+<div class="equation">k'<sub>2</sub>=<span class="frac"><span>7.00-1.00</span><span>1.00</span></span>=6.00</div>
+
+
+
+<div class="equation">α=<span class="frac"><span>k'<sub>2</sub></span><span>k'<sub>1</sub></span></span>=<span class="frac"><span>6.00</span><span>2.00</span></span>=3.00</div>
+
+
+</details></article>
+
+<article class="question-card" id="question-11" data-label="Q11"><h3>Q11. On a C18 reversed-phase stationary phase, retention generally increases with:</h3>
+<ol class="options" type="A"><li>Increasing ionic character in every case</li><li>Decreasing molecular size regardless of structure</li><li>Increasing hydrophobicity</li><li>Decreasing detector response</li><li>Decreasing injection concentration</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>C. Increasing hydrophobicity</strong></p>
+<p>A C18 stationary phase is nonpolar. More hydrophobic analytes interact more strongly with it and generally remain in the stationary phase longer.</p>
+</details></article>
+
+<article class="question-card" id="question-12" data-label="Q12"><h3>Q12. After a much larger sample is injected, a chromatographic peak becomes broader and its retention time shifts. Which change is most likely to improve the chromatogram?</h3>
+<ol class="options" type="A"><li>Reduce the amount or concentration injected</li><li>Inject twice as much sample</li><li>Increase the number of reported decimal places</li><li>Ignore the dead time</li><li>Measure only the later part of the peak</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>A. Reduce the amount or concentration injected</strong></p>
+<p>The broader peak and retention shift after a larger injection indicate column overload or nonlinear partitioning. Reducing the injected mass should restore more nearly linear behavior and improve peak shape.</p>
+</details></article>
+
+<article class="question-card" id="question-13" data-label="Q13"><h3>Q13. Walter White has decided to abandon his RV and become a chromatographer. Which phase carries his sample through the chromatographic system?</h3>
+<ol class="options" type="A"><li>The stationary phase</li><li>The mobile phase</li><li>The Batmobile phase</li><li>His “Heisenberg phase”</li><li>None of the above</li></ol>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>B. The mobile phase</strong></p>
+<p>The mobile phase flows through the chromatographic system and transports the sample. The stationary phase remains fixed and interacts with analytes to produce differential retention.</p>
+</details></article></div></section><section class="exam-section" aria-labelledby="part-b"><h2 id="part-b">Part B</h2><div class="cards"><article class="question-card" id="question-14" data-label="SA1"><h3>1. During a field study, a solvent tank has spilled onto the surrounding soil. Visible staining extends downhill toward a drainage ditch.</h3>
+<p><strong>(a)</strong> Which sampling strategy (judgmental or biased, simple random, or convenience) is most appropriate? Briefly explain how the locations would be chosen. (4 marks)</p>
+<p><strong>(b)</strong> Before moving to a new sampling location, what should the team do to the sampling tool so soil from the previous location does not enter the next sample? (2 marks)</p>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>(a)</strong> Use <strong>judgmental or biased sampling</strong> because the spill source and visible migration pathway are already known. Choose locations at the tank, throughout the visibly stained soil, along the downhill path toward the drainage ditch, and at the apparent edges of the affected area. Include suitable background or upgradient locations so the extent of contamination can be compared with unaffected soil.</p>
+<p><strong>(b)</strong> Decontaminate the sampling tool between locations. Remove adhering soil, wash or scrub the tool with the method-appropriate cleaning solution, rinse it as required, and use clean equipment or a clean tool surface for the next location. This prevents carryover and cross-contamination.</p>
+<p><strong>Mark allocation:</strong></p>
+<ul>
+<li>Appropriate judgmental or biased strategy: 1 mark</li>
+<li>Locations target the source and visible/downhill migration path: 2 marks</li>
+<li>Boundaries or background locations included: 1 mark</li>
+<li>Proper tool decontamination between locations: 2 marks</li>
+</ul>
+</details></article>
+
+<article class="question-card" id="question-15" data-label="SA2"><h3>2. A study is testing soil from a defined area for lead. The population is all soil within the chosen area and depth, but only 16 samples can be collected and analyzed. The mean of the 16 results is the sample mean.</h3>
+<p><strong>(a)</strong> In your own words, explain the difference between the sample mean and the population mean. (2 marks)</p>
+<p><strong>(b)</strong> Which mean can be calculated directly from the 16 laboratory results? (1 mark)</p>
+<p><strong>(c)</strong> Why is the population mean for the whole area usually estimated from samples instead of measured directly? Give one practical reason and briefly explain it. (3 marks)</p>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>(a)</strong> The <strong>sample mean</strong> is the average of the 16 measured sample results. The <strong>population mean</strong> is the average concentration for all soil in the defined area and depth. The sample mean is used as an estimate of the unknown population mean.</p>
+<p><strong>(b)</strong> The sample mean can be calculated directly from the 16 laboratory results.</p>
+<p><strong>(c)</strong> Measuring every portion of soil in the population is impractical. It would require an enormous number of samples, excessive time and cost, and potentially destructive excavation of the entire area. A defensible sampling design provides a practical estimate of the population mean from a manageable subset.</p>
+<p><strong>Mark allocation:</strong></p>
+<ul>
+<li>Correct definition of sample mean: 1 mark</li>
+<li>Correct definition of population mean: 1 mark</li>
+<li>Identifies the sample mean: 1 mark</li>
+<li>Gives a valid practical reason: 1 mark</li>
+<li>Explains why that reason prevents complete measurement: 2 marks</li>
+</ul>
+</details></article>
+
+<article class="question-card" id="question-16" data-label="SA3"><h3>3. A mineral lot is being prepared for analysis. Grinding reduces the top particle diameter from 5.0 to 2.5 mm. Assume required sample mass is proportional to particle diameter cubed.</h3>
+<p><strong>(a)</strong> Calculate the new required sample mass as a fraction of the original mass. (2 marks)</p>
+<p><strong>(b)</strong> Identify the type of heterogeneity that describes composition differences between individual particles. (2 marks)</p>
+<p><strong>(c)</strong> Describe one practical way to reduce fundamental sampling error in a particulate material. (Hint: think about particle size or the amount of material collected.) (2 marks)</p>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>(a)</strong></p>
+<div class="equation"><span class="frac"><span>M<sub>2</sub></span><span>M<sub>1</sub></span></span>=(<span class="frac"><span>2.5</span><span>5.0</span></span>)<sup>3</sup> =(<span class="frac"><span>1</span><span>2</span></span>)<sup>3</sup> =<span class="frac"><span>1</span><span>8</span></span></div>
+
+
+<p>The new required sample mass is <strong>one-eighth of the original mass</strong>.</p>
+<p><strong>(b)</strong> This is <strong>constitutional heterogeneity</strong>, also called compositional heterogeneity: individual particles differ in composition.</p>
+<p><strong>(c)</strong> Grind the material to a smaller top particle size before taking the final sample. Alternatively, collect a larger sample mass containing more particles. Either approach reduces fundamental sampling error when the sample is selected correctly.</p>
+<p><strong>Mark allocation:</strong></p>
+<ul>
+<li>Correct cubic ratio: 1 mark</li>
+<li>Correct fraction, 1/8: 1 mark</li>
+<li>Constitutional or compositional heterogeneity: 2 marks</li>
+<li>Valid practical method: 1 mark</li>
+<li>Explains how it reduces fundamental sampling error: 1 mark</li>
+</ul>
+</details></article>
+
+<article class="question-card" id="question-17" data-label="SA4"><h3>4. Three solutes are analyzed using the same chromatographic column. Their retention factors are: solute A, k′ = 0.50; solute B, k′ = 2.0; and solute C, k′ = 5.0.</h3>
+<p><strong>(a)</strong> Place the three solutes in the order they will elute from the column, from first to last. (3 marks)</p>
+<p><strong>(b)</strong> Explain why the solutes elute in this order. Relate each retention factor to the amount of time the solute spends in the stationary phase. (3 marks)</p>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>(a)</strong> First to last: <strong>A → B → C</strong>.</p>
+<p><strong>(b)</strong> A larger retention factor means that the solute spends more time in the stationary phase relative to the mobile phase and therefore elutes later.</p>
+<ul>
+<li>Solute A, <span class="math">k&#39;=0.50</span>, spends the least relative time in the stationary phase and elutes first.</li>
+<li>Solute B, <span class="math">k&#39;=2.0</span>, is retained more strongly and elutes second.</li>
+<li>Solute C, <span class="math">k&#39;=5.0</span>, spends the greatest relative time in the stationary phase and elutes last.</li>
+</ul>
+<p><strong>Mark allocation:</strong></p>
+<ul>
+<li>Correct position for A: 1 mark</li>
+<li>Correct position for B: 1 mark</li>
+<li>Correct position for C: 1 mark</li>
+<li>Connects larger <span class="math">k&#39;</span> with greater stationary-phase time and later elution: 3 marks</li>
+</ul>
+</details></article>
+
+<article class="question-card" id="question-18" data-label="SA5"><h3>5. Two analytes, A and B, are separated by chromatography. The dead time is 1.20 minutes. Analyte A elutes at 3.60 minutes and analyte B elutes at 6.00 minutes.</h3>
+<p><strong>(a)</strong> Calculate the retention factor (k′) for each analyte. (2 marks)</p>
+<p><strong>(b)</strong> Calculate the selectivity factor (α) for this separation. (2 marks)</p>
+<p><strong>(c)</strong> Briefly explain what the calculated α value means about the column&#39;s ability to separate A and B. (2 marks)</p>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>(a)</strong></p>
+<div class="equation">k'<sub>A</sub>=<span class="frac"><span>3.60-1.20</span><span>1.20</span></span>=2.00</div>
+
+
+
+<div class="equation">k'<sub>B</sub>=<span class="frac"><span>6.00-1.20</span><span>1.20</span></span>=4.00</div>
+
+
+<p><strong>(b)</strong></p>
+<div class="equation">α=<span class="frac"><span>k'<sub>B</sub></span><span>k'<sub>A</sub></span></span>=<span class="frac"><span>4.00</span><span>2.00</span></span>=2.00</div>
+
+
+<p><strong>(c)</strong> An <span class="math">α</span> value of 2.00 means analyte B is retained twice as strongly as analyte A in terms of retention factor. Because <span class="math">α&gt;1</span>, the column provides chemical selectivity between A and B. This supports separation, although selectivity alone does not guarantee baseline resolution because efficiency and peak width also matter.</p>
+<p><strong>Mark allocation:</strong></p>
+<ul>
+<li><span class="math">k&#39;<sub>A</sub>=2.00</span>: 1 mark</li>
+<li><span class="math">k&#39;<sub>B</sub>=4.00</span>: 1 mark</li>
+<li>Correct selectivity equation and numerator order: 1 mark</li>
+<li><span class="math">α=2.00</span>: 1 mark</li>
+<li>Correct interpretation of differential retention/selectivity: 2 marks</li>
+</ul>
+</details></article>
+
+<article class="question-card" id="question-19" data-label="SA6"><h3>6. In a chromatographic run, a compound has a retention time of 8.00 minutes and a baseline peak width of 0.40 minutes on a 25.0 cm column. A second chromatographic system, operated under comparable conditions, has a plate height of 55 micrometres.</h3>
+<p><strong>(a)</strong> Use the baseline peak-width equation to calculate the theoretical plate number (N) for the first system. (3 marks)</p>
+<p><strong>(b)</strong> Calculate the plate height (H) for the first system in micrometres. Then decide which system is more efficient and should produce narrower peaks. Explain your choice. (3 marks)</p>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<p><strong>(a)</strong></p>
+<div class="equation">N=16(<span class="frac"><span>t<sub>R</sub></span><span>w</span></span>)<sup>2</sup> =16(<span class="frac"><span>8.00</span><span>0.40</span></span>)<sup>2</sup> =16(20.0)<sup>2</sup> =6400</div>
+
+
+<p><strong>(b)</strong></p>
+<div class="equation">H=<span class="frac"><span>L</span><span>N</span></span> =<span class="frac"><span>25.0 cm</span><span>6400</span></span> =0.00390625 cm</div>
+
+
+<p>Using <span class="math">1 cm=10,000 μm</span>:</p>
+<div class="equation">H=(0.00390625 cm)(10,000 μm/cm) =39.1 μm</div>
+
+
+<p>The <strong>first system is more efficient</strong> because its plate height is approximately <span class="math">39.1 μm</span>, which is smaller than <span class="math">55 μm</span>. Under comparable conditions, a smaller plate height indicates less band broadening per unit column length and therefore narrower peaks.</p>
+<p><strong>Mark allocation:</strong></p>
+<ul>
+<li>Correct baseline-width equation and substitution: 2 marks</li>
+<li><span class="math">N=6400</span>: 1 mark</li>
+<li>Correct plate-height calculation and unit conversion: 2 marks</li>
+<li>Correctly selects the first system and explains the lower-<span class="math">H</span> criterion: 1 mark</li>
+</ul>
+</details></article></div></section><section class="exam-section" aria-labelledby="bonus"><h2 id="bonus">Bonus (2 marks)</h2><div class="cards"><article class="question-card" id="question-20" data-label="Bonus"><p>State the effect of each change: a smaller top particle diameter on sampling error, and a narrower peak width on plate number N. (please don’t use the whole page to answer this question).</p>
+<details>
+<summary><strong>Solution</strong></summary>
+
+<ul>
+<li>A smaller top particle diameter <strong>decreases fundamental sampling error</strong> for a fixed sample mass.</li>
+<li>A narrower peak width <strong>increases the calculated plate number <span class="math">N</span></strong> when retention time is unchanged because <span class="math">N</span> is proportional to <span class="math">1/w<sup>2</sup></span>.</li>
+</ul>
+</details></article></div></section></main>
+  <div class="focus-controls" aria-label="Focus controls">
+    <button id="previousButton" type="button">Previous</button>
+    <button id="focusReveal" type="button">Reveal</button>
+    <button id="nextButton" type="button">Next</button>
+  </div>
+  <script>
+  (() => {
+    const cards = [...document.querySelectorAll('.question-card')];
+    const details = [...document.querySelectorAll('details')];
+    const rail = document.getElementById('questionRail');
+    const status = document.getElementById('status');
+    const focusButton = document.getElementById('focusButton');
+    const focusReveal = document.getElementById('focusReveal');
+    let current = 0;
+
+    cards.forEach((card, index) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'rail-button';
+      button.textContent = card.dataset.label;
+      button.setAttribute('aria-label', 'Show ' + card.dataset.label);
+      button.addEventListener('click', () => setCurrent(index));
+      rail.appendChild(button);
+      card.addEventListener('click', event => {
+        if (!event.target.closest('summary, button, a')) setCurrent(index, false);
+      });
+    });
+
+    const railButtons = [...rail.querySelectorAll('button')];
+
+    function updateStatus() {
+      const openCount = details.filter(item => item.open).length;
+      status.textContent = openCount + ' / ' + details.length + ' revealed';
+      cards.forEach((card, index) => {
+        railButtons[index].classList.toggle('revealed', Boolean(card.querySelector('details')?.open));
+      });
+      focusReveal.textContent = currentDetails()?.open ? 'Hide' : 'Reveal';
+    }
+
+    function currentDetails() { return cards[current]?.querySelector('details') ?? null; }
+
+    function setCurrent(index, scroll = true) {
+      current = Math.max(0, Math.min(cards.length - 1, index));
+      cards.forEach((card, i) => card.classList.toggle('current', i === current));
+      railButtons.forEach((button, i) => button.classList.toggle('current', i === current));
+      railButtons[current].scrollIntoView({behavior: 'smooth', block: 'nearest', inline: 'center'});
+      if (scroll) cards[current].scrollIntoView({behavior: 'smooth', block: document.body.classList.contains('focus-mode') ? 'center' : 'start'});
+      updateStatus();
+    }
+
+    function setFocus(on) {
+      document.body.classList.toggle('focus-mode', on);
+      focusButton.setAttribute('aria-pressed', String(on));
+      focusButton.textContent = on ? 'Exit focus' : 'Focus';
+      setCurrent(current);
+    }
+
+    details.forEach((item, index) => {
+      item.addEventListener('toggle', () => {
+        const card = item.closest('.question-card');
+        const cardIndex = cards.indexOf(card);
+        if (item.open && cardIndex >= 0) setCurrent(cardIndex, false);
+        updateStatus();
+      });
+    });
+
+    document.getElementById('revealAll').addEventListener('click', () => { details.forEach(item => item.open = true); updateStatus(); });
+    document.getElementById('hideAll').addEventListener('click', () => { details.forEach(item => item.open = false); updateStatus(); });
+    document.getElementById('printButton').addEventListener('click', () => window.print());
+    focusButton.addEventListener('click', () => setFocus(!document.body.classList.contains('focus-mode')));
+    document.getElementById('previousButton').addEventListener('click', () => setCurrent(current - 1));
+    document.getElementById('nextButton').addEventListener('click', () => setCurrent(current + 1));
+    focusReveal.addEventListener('click', () => { const item = currentDetails(); if (item) item.open = !item.open; });
+
+    document.addEventListener('keydown', event => {
+      if (event.target.matches('button, summary, input, textarea, select')) return;
+      if (event.key === 'ArrowRight') { event.preventDefault(); setCurrent(current + 1); }
+      if (event.key === 'ArrowLeft') { event.preventDefault(); setCurrent(current - 1); }
+      if (event.key.toLowerCase() === 'r') { const item = currentDetails(); if (item) item.open = !item.open; }
+      if (event.key.toLowerCase() === 'f') setFocus(!document.body.classList.contains('focus-mode'));
+      if (event.key === 'Escape' && document.body.classList.contains('focus-mode')) setFocus(false);
+    });
+
+    setCurrent(0, false);
+    updateStatus();
+  })();
+</script>
+</body>
+</html>
