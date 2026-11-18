@@ -3799,6 +3799,48 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     clone.style.setProperty('opacity','1','important');
     var animated=clone.querySelectorAll('.rise');for(var j=0;j<animated.length;j++){animated[j].style.setProperty('animation','none','important');animated[j].style.setProperty('opacity','1','important');animated[j].style.setProperty('transform','none','important');}
     var all=clone.querySelectorAll('*');for(var k=0;k<all.length;k++){all[k].style.setProperty('animation','none','important');all[k].style.setProperty('transition','none','important');}
+    function styleAll(selector,styles){
+      var nodes=clone.querySelectorAll(selector);
+      for(var n=0;n<nodes.length;n++)for(var key in styles)nodes[n].style.setProperty(key,styles[key],'important');
+    }
+    styleAll('.ix-buttons',{'gap':'8px','margin':'10px 0'});
+    styleAll('.ix-buttons button',{'padding':'8px 13px','min-height':'40px','font-size':'16px','line-height':'1.15'});
+    styleAll('.ix-readout',{'min-height':'0','padding':'12px 15px','font-size':'18px','line-height':'1.28'});
+    styleAll('.ix-copy',{'font-size':'19px','line-height':'1.30'});
+    styleAll('.worked-step-list',{'gap':'8px','margin-top':'10px'});
+    styleAll('.worked-step-disclosure',{'padding':'11px 16px'});
+    styleAll('.worked-step-disclosure > summary',{'font-size':'19px','line-height':'1.18'});
+    styleAll('.worked-step-answer',{'margin-top':'6px','padding-left':'28px','font-size':'18px','line-height':'1.28'});
+    styleAll('.worked-question',{'margin-top':'12px','font-size':'21px','line-height':'1.25'});
+    var label=clone.getAttribute('data-label')||'';
+    if(label==='Electrical Double Layer at the Resin Surface'){
+      clone.style.setProperty('padding','76px 104px 70px','important');
+      styleAll('h2',{'font-size':'50px','line-height':'1.08','margin-bottom':'12px'});
+      styleAll('.dl-layout',{'display':'grid','grid-template-columns':'760px minmax(0, 1fr)','gap':'24px','align-items':'start','margin-top':'4px','min-height':'0'});
+      styleAll('.dl-figure',{'position':'relative','z-index':'1','padding':'10px','overflow':'hidden'});
+      styleAll('.dl-image-wrap',{'height':'390px','min-height':'390px','max-height':'390px'});
+      styleAll('.dl-figure figcaption',{'margin-top':'5px','font-size':'14px','line-height':'1.22'});
+      styleAll('.dl-copy',{'position':'relative','z-index':'2','display':'block','min-width':'0','overflow':'visible','font-size':'18px','line-height':'1.28','background':'rgba(255,255,255,.97)'});
+      styleAll('.dl-copy p',{'margin':'0 0 8px'});
+      styleAll('.dl-copy .ix-buttons',{'margin':'8px 0','gap':'7px'});
+      styleAll('.dl-copy .ix-readout',{'min-height':'0','padding':'11px 13px','font-size':'17px','line-height':'1.24'});
+      styleAll('.dl-note',{'margin-top':'8px','font-size':'14px','line-height':'1.22'});
+      styleAll('.pc-credit',{'font-size':'10px','line-height':'1.1'});
+    }
+    if(label==='Ionic Strength, Debye Length, and Donnan Partitioning'){
+      clone.style.setProperty('padding','76px 104px 70px','important');
+      styleAll('h2',{'font-size':'48px','line-height':'1.08','margin-bottom':'10px'});
+      styleAll('.dl-screening',{'display':'grid','grid-template-columns':'730px minmax(0, 1fr)','gap':'24px','align-items':'start','margin-top':'4px','min-height':'0'});
+      styleAll('.dl-legacy',{'padding':'10px','overflow':'hidden'});
+      styleAll('.dl-legacy img',{'display':'block','width':'100%','height':'370px','max-height':'370px','object-fit':'contain'});
+      styleAll('.dl-legacy figcaption',{'margin-top':'5px','font-size':'14px','line-height':'1.22'});
+      styleAll('.dl-points',{'min-width':'0','font-size':'17px','line-height':'1.24'});
+      styleAll('.dl-points h3',{'font-size':'22px','line-height':'1.15','margin':'0 0 5px'});
+      styleAll('.dl-points ul',{'margin':'6px 0 10px','padding-left':'23px'});
+      styleAll('.dl-points li',{'margin':'4px 0'});
+      styleAll('.dl-points .ix-readout',{'padding':'10px 12px','font-size':'16px','line-height':'1.22'});
+      styleAll('.dl-note',{'margin-top':'7px','font-size':'14px','line-height':'1.20'});
+    }
   }
   function pdfLayout(mode){
     if(mode==='stacked')return {format:[612,792],orientation:'portrait',group:2,frames:[{x:18,y:63,w:576,h:324},{x:18,y:405,w:576,h:324}],name:'CHEM3400H-Lecture-17-two-up-stacked.pdf'};
@@ -3810,7 +3852,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     slides.forEach(function(slide,index){
       var number=String(index+1),letterCode=97;
       frames.push({slide:slide,label:number,kind:'base',index:-1,count:0});
-      var selector='[data-pdf-state],[data-science-copy],[data-exchange-choice],[data-suppress-choice],[data-salt-choice],[data-method-problem],[data-recognition-choice],[data-chrom-zone]';
+      var selector='[data-pdf-state],[data-ix-state],[data-science-copy],[data-exchange-choice],[data-suppress-choice],[data-salt-choice],[data-method-problem],[data-recognition-choice],[data-chrom-zone]';
       var controls=Array.prototype.slice.call(slide.querySelectorAll(selector));
       controls.forEach(function(control,controlIndex){frames.push({slide:slide,label:number+String.fromCharCode(letterCode++),kind:'control',index:controlIndex,count:0,selector:selector});});
       var details=slide.querySelectorAll('details[data-worked-step],details.worked-step-disclosure');
@@ -3819,17 +3861,56 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     return frames;
   }
   function setPdfFrameLabel(clone,label){var foot=clone.querySelector('.page-foot');if(foot)foot.textContent=label;}
+  function activatePdfChoice(clone,selector,selected){
+    var choices=clone.querySelectorAll(selector);
+    for(var i=0;i<choices.length;i++)choices[i].setAttribute('data-active',choices[i]===selected?'true':'false');
+  }
+  function applyPdfControlState(clone,control){
+    if(control.hasAttribute('data-ix-state')){
+      var state=control.getAttribute('data-ix-state');
+      activatePdfChoice(clone,'[data-ix-state]',control);
+      var panels=clone.querySelectorAll('[data-ix-panel]');
+      for(var p=0;p<panels.length;p++)panels[p].setAttribute('data-state',state);
+      var readout=clone.querySelector('[data-ix-readout]');
+      var copy=control.getAttribute('data-copy');
+      if(readout&&copy!==null)readout.innerHTML=copy;
+      return true;
+    }
+    if(control.hasAttribute('data-science-copy')){
+      activatePdfChoice(clone,'[data-science-copy]',control);
+      var scienceReadout=clone.querySelector('[data-science-readout]');
+      if(scienceReadout)scienceReadout.innerHTML=control.getAttribute('data-science-copy')||'';
+      return true;
+    }
+    return false;
+  }
   async function applyPdfFrame(clone,frame){
-    if(frame.kind==='control'){var controls=clone.querySelectorAll(frame.selector);if(controls[frame.index])controls[frame.index].click();}
+    if(frame.kind==='control'){
+      var controls=clone.querySelectorAll(frame.selector),control=controls[frame.index];
+      if(control&&!applyPdfControlState(clone,control))control.click();
+    }
     if(frame.kind==='details'){var details=clone.querySelectorAll('details[data-worked-step],details.worked-step-disclosure');for(var i=0;i<details.length;i++)details[i].open=i<frame.count;}
     setPdfFrameLabel(clone,frame.label);
-    await new Promise(function(resolve){setTimeout(resolve,70);});
+    clone.getBoundingClientRect();
+    await new Promise(function(resolve){setTimeout(resolve,40);});
   }
   window.__chemPdfFrameLabels=function(){var ds=document.querySelector('deck-stage'),slides=ds&&slidesOf(ds);return slides?pdfFrames(slides).map(function(frame){return frame.label;}):[];};
   async function downloadSlidesPdf(mode,trigger){
     if(window.__chemPdfBusy)return;
     var ds=document.querySelector('deck-stage'),liveSlides=ds&&slidesOf(ds);if(!liveSlides||!liveSlides.length)return;
-    var slides=liveSlides.map(function(slide,index){var html=window.__chemInteractionBaseline&&window.__chemInteractionBaseline[index];if(!html)return slide.cloneNode(true);var template=document.createElement('template');template.innerHTML=html.trim();return template.content.firstElementChild||slide.cloneNode(true);});
+    var baselineByLabel={};
+    (window.__chemInteractionBaseline||[]).forEach(function(html){
+      if(!html)return;
+      var template=document.createElement('template');template.innerHTML=html.trim();
+      var saved=template.content.firstElementChild,label=saved&&saved.getAttribute('data-label');
+      if(saved&&label&&!baselineByLabel[label])baselineByLabel[label]=saved;
+    });
+    var slides=liveSlides.map(function(slide){
+      var label=slide.getAttribute('data-label'),saved=label&&baselineByLabel[label];
+      if(saved&&slide.hasAttribute('data-lecture17-repaired')&&!saved.hasAttribute('data-lecture17-repaired'))saved=null;
+      if(saved&&slide.hasAttribute('data-double-layer-refined')&&!saved.hasAttribute('data-double-layer-refined'))saved=null;
+      return saved?saved.cloneNode(true):slide.cloneNode(true);
+    });
     var PDF=window.jspdf&&window.jspdf.jsPDF;if(!window.html2canvas||!PDF){alert('The PDF tools did not load. Please close and reopen this lecture file, then try again.');return;}
     window.__chemPdfBusy=true;closePanels();if(trigger)trigger.disabled=true;
     captureFontSizes();var status=pdfStatus('Preparing the 16:9 PDF…');
@@ -3840,7 +3921,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       if(document.fonts&&document.fonts.ready)await document.fonts.ready;
       for(var i=0;i<frames.length;i++){
         var pdfFrame=frames[i];status.textContent='Creating PDF: '+pdfFrame.label+' ('+(i+1)+' of '+frames.length+')';
-        host.textContent='';var clone=pdfFrame.slide.cloneNode(true);host.appendChild(clone);await applyPdfFrame(clone,pdfFrame);resetPdfClone(clone);await waitForPdfImages(clone);
+        host.textContent='';var clone=pdfFrame.slide.cloneNode(true);host.appendChild(clone);resetPdfClone(clone);await applyPdfFrame(clone,pdfFrame);await waitForPdfImages(clone);
         var canvas=await window.html2canvas(clone,{backgroundColor:'#ffffff',scale:(mode==='single'?.6:.4),width:DESIGN_W,height:DESIGN_H,windowWidth:DESIGN_W,windowHeight:DESIGN_H,scrollX:0,scrollY:0,useCORS:true,allowTaint:true,logging:false,imageTimeout:0});
         if(!pdf){pdf=new PDF({orientation:layout.orientation,unit:'pt',format:layout.format,compress:true,putOnlyUsedFonts:true});pdf.setProperties({title:'CHEM 3400H Lecture 17',author:'Prof. Jun-Ray Macairan',subject:'Ion-Exchange Chromatography: Retention, Resin Chemistry, and Selectivity'});}
         else if(i%layout.group===0)pdf.addPage(layout.format,layout.orientation);
@@ -4181,6 +4262,85 @@ function rebalance(){
  pages();setTimeout(function(){window.__chemInteractionBaseline=slides().map(function(s){return s.outerHTML;});},350);
 }
 rebalance();setTimeout(rebalance,650);setTimeout(rebalance,1700);window.__lecture17SequenceRebalance=rebalance;
+})();
+</script>
+<style id="__lecture17_flow_focus_style">
+.slide.ix-flow-slide{padding:76px 104px 68px!important}
+.ix-flow-slide>h2{font-size:56px;line-height:1.08;margin:0 0 12px}
+.ix-flow-layout{display:grid;grid-template-columns:minmax(0,1.46fr) minmax(450px,.54fr);gap:30px;align-items:start;height:724px;margin-top:4px}
+.ix-flow-figure{height:696px;margin:0;padding:14px 14px 10px;border:1px solid var(--color-divider);border-radius:24px;background:#fff;box-shadow:var(--shadow-sm);overflow:hidden}
+.ix-flow-stage{position:relative;height:586px;border-radius:18px;overflow:hidden;background:linear-gradient(180deg,#eaf5f1 0,#f8fbfa 20%,#fff 50%,#f8fbfa 80%,#eaf5f1 100%);isolation:isolate}
+.ix-flow-wall{position:absolute;left:0;right:0;height:76px;background:#c9ddd2;color:#194c30;z-index:6;display:flex;align-items:center;justify-content:center;font:900 38px/1 Arial,sans-serif;letter-spacing:42px;text-indent:42px}
+.ix-flow-wall.top{top:0;border-bottom:5px solid #257a4a}.ix-flow-wall.bottom{bottom:0;border-top:5px solid #257a4a}
+.ix-flow-wall-label{position:absolute;left:20px;z-index:8;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.9);color:#194c30;font:700 15px/1.1 Arial,sans-serif}.ix-flow-wall-label.top{top:18px}.ix-flow-wall-label.bottom{bottom:18px}
+.ix-flow-zone{position:absolute;left:0;right:0;opacity:.12;transition:opacity .35s,filter .35s;z-index:1;pointer-events:none}
+.ix-flow-stern.top{top:76px;height:48px;background:rgba(239,176,58,.34)}.ix-flow-stern.bottom{bottom:76px;height:48px;background:rgba(239,176,58,.34)}
+.ix-flow-diffuse.top{top:124px;height:94px;background:linear-gradient(180deg,rgba(84,168,123,.28),rgba(84,168,123,0))}.ix-flow-diffuse.bottom{bottom:124px;height:94px;background:linear-gradient(0deg,rgba(84,168,123,.28),rgba(84,168,123,0))}
+.ix-flow-zone-label{position:absolute;right:18px;z-index:9;padding:5px 10px;border-radius:8px;background:rgba(255,255,255,.88);color:#53665c;font:700 14px/1.1 Arial,sans-serif;opacity:0;transition:opacity .3s}.ix-flow-zone-label.stern{top:88px}.ix-flow-zone-label.diffuse{top:147px}
+.ix-flow-stream{position:absolute;left:-90px;right:-90px;top:270px;height:50px;z-index:0;background:repeating-linear-gradient(90deg,transparent 0 38px,rgba(48,120,89,.12) 38px 78px);animation:ixFlowStream 2.2s linear infinite}
+.ix-flow-stream:after{content:"mobile phase flow  →";position:absolute;left:40%;top:8px;color:#507064;font:700 19px/1.2 Arial,sans-serif;letter-spacing:.04em}
+@keyframes ixFlowStream{to{transform:translateX(78px)}}
+.ix-flow-solvent{position:absolute;width:13px;height:13px;border-radius:50%;background:#8bb7a3;opacity:.55;z-index:2;animation:ixSolvent 3.1s linear infinite}.ix-flow-solvent.s2{top:248px;animation-delay:-.8s}.ix-flow-solvent.s3{top:328px;animation-delay:-1.6s}.ix-flow-solvent.s4{top:386px;animation-delay:-2.4s}.ix-flow-solvent.s1{top:196px}
+@keyframes ixSolvent{from{left:-20px}to{left:108%}}
+.ix-flow-counterion,.ix-flow-coion,.ix-flow-salt{position:absolute;display:grid;place-items:center;border-radius:50%;font:800 15px/1 Arial,sans-serif;z-index:5;transition:opacity .3s,left .55s,top .55s}
+.ix-flow-counterion{width:31px;height:31px;background:#f2bf58;color:#533b0b;opacity:.12}.ix-flow-coion{width:24px;height:24px;background:#9dc9d5;color:#214a55;opacity:0}.ix-flow-salt{width:32px;height:32px;background:#f6d681;color:#513b08;opacity:0}
+.ix-flow-counterion.c1{left:13%;top:88px}.ix-flow-counterion.c2{left:27%;top:97px}.ix-flow-counterion.c3{left:42%;top:89px}.ix-flow-counterion.c4{left:58%;top:98px}.ix-flow-counterion.c5{left:73%;top:88px}.ix-flow-counterion.c6{left:20%;bottom:91px}.ix-flow-counterion.c7{left:36%;bottom:101px}.ix-flow-counterion.c8{left:53%;bottom:90px}.ix-flow-counterion.c9{left:68%;bottom:100px}.ix-flow-counterion.c10{left:84%;bottom:91px}
+.ix-flow-coion.o1{left:32%;top:166px}.ix-flow-coion.o2{left:65%;top:176px}.ix-flow-coion.o3{left:48%;bottom:170px}.ix-flow-coion.o4{left:78%;bottom:166px}
+.ix-flow-analyte{position:absolute;width:50px;height:50px;border-radius:50%;display:grid;place-items:center;background:#8d5bb6;color:#fff;box-shadow:0 6px 14px rgba(71,39,97,.22);font:800 18px/1 Arial,sans-serif;z-index:7;transition:left .65s ease,top .65s ease,transform .65s ease,opacity .35s}
+.ix-flow-analyte.a1{left:7%;top:206px}.ix-flow-analyte.a2{left:12%;top:320px}.ix-flow-analyte.a3{left:17%;top:250px}.ix-flow-analyte.a4{left:22%;top:370px}.ix-flow-analyte.a5{left:27%;top:190px}.ix-flow-analyte.a6{left:31%;top:300px}.ix-flow-analyte.a7{left:36%;top:230px}.ix-flow-analyte.a8{left:39%;top:352px}
+.ix-flow-plug{position:absolute;top:82px;bottom:82px;left:42%;width:112px;border:4px solid rgba(141,91,182,.65);border-radius:18px;background:rgba(141,91,182,.11);opacity:0;z-index:3;transition:left .65s,opacity .35s}.ix-flow-plug span{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);width:160px;text-align:center;color:#6a3d8c;font:800 15px/1.15 Arial,sans-serif}
+.ix-flow-salt.n1{left:7%;top:214px}.ix-flow-salt.n2{left:14%;top:286px}.ix-flow-salt.n3{left:22%;top:350px}.ix-flow-salt.n4{left:29%;top:238px}.ix-flow-salt.n5{left:36%;top:330px}
+.ix-flow-stage[data-state="layer"] .ix-flow-zone,.ix-flow-stage[data-state="exchange"] .ix-flow-zone,.ix-flow-stage[data-state="plug"] .ix-flow-zone,.ix-flow-stage[data-state="elute"] .ix-flow-zone{opacity:1}
+.ix-flow-stage[data-state="layer"] .ix-flow-zone-label,.ix-flow-stage[data-state="exchange"] .ix-flow-zone-label,.ix-flow-stage[data-state="plug"] .ix-flow-zone-label,.ix-flow-stage[data-state="elute"] .ix-flow-zone-label{opacity:1}
+.ix-flow-stage[data-state="layer"] .ix-flow-counterion,.ix-flow-stage[data-state="exchange"] .ix-flow-counterion,.ix-flow-stage[data-state="plug"] .ix-flow-counterion,.ix-flow-stage[data-state="elute"] .ix-flow-counterion{opacity:1}
+.ix-flow-stage[data-state="layer"] .ix-flow-coion,.ix-flow-stage[data-state="exchange"] .ix-flow-coion,.ix-flow-stage[data-state="plug"] .ix-flow-coion{opacity:.62}
+.ix-flow-stage[data-state="exchange"] .a1{left:34%;top:88px}.ix-flow-stage[data-state="exchange"] .a2{left:38%;top:445px}.ix-flow-stage[data-state="exchange"] .a3{left:43%;top:96px}.ix-flow-stage[data-state="exchange"] .a4{left:47%;top:438px}.ix-flow-stage[data-state="exchange"] .a5{left:53%;top:90px}.ix-flow-stage[data-state="exchange"] .a6{left:57%;top:444px}.ix-flow-stage[data-state="exchange"] .a7{left:62%;top:97px}.ix-flow-stage[data-state="exchange"] .a8{left:66%;top:437px}
+.ix-flow-stage[data-state="exchange"] .c3{left:72%;top:238px;opacity:.55}.ix-flow-stage[data-state="exchange"] .c4{left:80%;top:284px;opacity:.55}.ix-flow-stage[data-state="exchange"] .c8{left:69%;top:332px;bottom:auto;opacity:.55}.ix-flow-stage[data-state="exchange"] .c9{left:84%;top:366px;bottom:auto;opacity:.55}
+.ix-flow-stage[data-state="plug"] .ix-flow-plug{opacity:1}.ix-flow-stage[data-state="plug"] .a1{left:43%;top:90px}.ix-flow-stage[data-state="plug"] .a2{left:47%;top:444px}.ix-flow-stage[data-state="plug"] .a3{left:44%;top:146px}.ix-flow-stage[data-state="plug"] .a4{left:48%;top:390px}.ix-flow-stage[data-state="plug"] .a5{left:45%;top:205px}.ix-flow-stage[data-state="plug"] .a6{left:49%;top:334px}.ix-flow-stage[data-state="plug"] .a7{left:43%;top:264px}.ix-flow-stage[data-state="plug"] .a8{left:48%;top:275px}
+.ix-flow-stage[data-state="elute"] .ix-flow-stern{opacity:1}.ix-flow-stage[data-state="elute"] .ix-flow-diffuse{opacity:.28;filter:saturate(.7)}.ix-flow-stage[data-state="elute"] .ix-flow-plug{left:73%;opacity:.68}.ix-flow-stage[data-state="elute"] .ix-flow-salt{opacity:1}.ix-flow-stage[data-state="elute"] .ix-flow-coion{opacity:.3}
+.ix-flow-stage[data-state="elute"] .a1{left:74%;top:108px}.ix-flow-stage[data-state="elute"] .a2{left:78%;top:424px}.ix-flow-stage[data-state="elute"] .a3{left:76%;top:160px}.ix-flow-stage[data-state="elute"] .a4{left:81%;top:373px}.ix-flow-stage[data-state="elute"] .a5{left:79%;top:216px}.ix-flow-stage[data-state="elute"] .a6{left:84%;top:326px}.ix-flow-stage[data-state="elute"] .a7{left:82%;top:266px}.ix-flow-stage[data-state="elute"] .a8{left:87%;top:288px}
+.ix-flow-legend{display:flex;align-items:center;gap:18px;margin:10px 4px 0;color:#4f6259;font-size:15px;line-height:1.2}.ix-flow-legend span{display:flex;align-items:center;gap:7px}.ix-flow-legend i{display:inline-grid;place-items:center;width:23px;height:23px;border-radius:50%;font-style:normal;font-size:12px;font-weight:800}.ix-flow-legend .analyte{background:#8d5bb6;color:#fff}.ix-flow-legend .counter{background:#f2bf58;color:#513b08}.ix-flow-legend .site{border-radius:5px;background:#257a4a;color:#fff}
+.ix-flow-caption{margin-top:8px;color:var(--color-muted);font-size:15px;line-height:1.28}
+.ix-flow-copy{min-width:0;padding:0 0 0 2px}.ix-flow-lead{margin:0 0 12px;font-size:21px;line-height:1.34}.ix-flow-play{appearance:none;width:100%;min-height:48px;border:0;border-radius:14px;background:#173f2a;color:#fff;font:800 18px/1.1 Arial,sans-serif;margin:0 0 10px;cursor:pointer}.ix-flow-play:focus-visible{outline:4px solid #9dd7b5;outline-offset:3px}
+.ix-flow-copy .ix-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 10px}.ix-flow-copy .ix-buttons button{min-height:43px;padding:8px 10px;border-width:2px;border-radius:12px;font-size:16px;line-height:1.15}.ix-flow-copy .ix-buttons button:last-child{grid-column:1/-1}
+.ix-flow-copy .ix-readout{min-height:126px;padding:15px 17px;font-size:18px;line-height:1.32}.ix-flow-rule{margin-top:10px;padding:13px 16px;border-radius:15px;background:#edf6f0;color:#243a2f;font-size:16px;line-height:1.32}.ix-flow-rule strong{display:block;color:#174d2e;margin-bottom:3px}.ix-flow-copy .pc-credit{margin-top:8px}
+@media(prefers-reduced-motion:reduce){.ix-flow-stream,.ix-flow-solvent{animation:none!important}.ix-flow-analyte,.ix-flow-plug,.ix-flow-counterion,.ix-flow-coion,.ix-flow-salt{transition:none!important}}
+</style>
+<script id="__lecture17_flow_focus_script">
+(function(){
+  'use strict';
+  if(window.__lecture17FlowFocus)return;
+  window.__lecture17FlowFocus=true;
+  function slides(){var d=document.querySelector('deck-stage');return d?Array.prototype.filter.call(d.children,function(x){return x.classList&&x.classList.contains('slide');}):[];}
+  function find(label){return slides().find(function(s){return s.getAttribute('data-label')===label;});}
+  function setState(section,button){
+    if(!section||!button)return;
+    section.querySelectorAll('[data-ix-state]').forEach(function(item){item.setAttribute('data-active',item===button?'true':'false');});
+    var panel=section.querySelector('[data-ix-panel]');if(panel)panel.setAttribute('data-state',button.getAttribute('data-ix-state'));
+    var readout=section.querySelector('[data-ix-readout]');if(readout)readout.innerHTML=button.getAttribute('data-copy')||'';
+  }
+  function install(){
+    var slide=find('Electrical Double Layer at the Resin Surface');
+    if(!slide||slide.getAttribute('data-flow-focus')==='true')return;
+    var logo=slide.querySelector('.deck-logo'),foot=slide.querySelector('.page-foot'),page=foot?foot.textContent:'';
+    slide.classList.add('ix-flow-slide');
+    slide.setAttribute('data-flow-focus','true');
+    slide.setAttribute('data-speaker-notes','Use the controls to follow a cationic analyte through a negatively charged cation exchanger. Emphasize that the electrical double layer creates local counterion enrichment and controls access to charged sites. Strong binding at the column head focuses the injected zone into a narrow sample band. The double layer supports that exchange, but does not compress the sample by itself. Added salt competes for sites and compresses the diffuse layer, which releases the band.');
+    slide.innerHTML=(logo?logo.outerHTML:'')+'<div class="class-code">CHEM 3400H</div><h2>How the Double Layer Shapes the Sample Band</h2><div class="ix-flow-layout"><figure class="ix-flow-figure"><div class="ix-flow-stage" data-ix-panel data-state="flow" role="img" aria-label="Mobile phase carries cationic analytes through a negatively charged ion-exchange pore. The Stern and diffuse layers control access to exchange sites, and strong binding focuses analytes into a narrow band."><div class="ix-flow-wall top">− − − − − − −</div><div class="ix-flow-wall bottom">− − − − − − −</div><span class="ix-flow-wall-label top">fixed negative sites</span><span class="ix-flow-wall-label bottom">fixed negative sites</span><div class="ix-flow-zone ix-flow-stern top"></div><div class="ix-flow-zone ix-flow-stern bottom"></div><div class="ix-flow-zone ix-flow-diffuse top"></div><div class="ix-flow-zone ix-flow-diffuse bottom"></div><span class="ix-flow-zone-label stern">Stern layer</span><span class="ix-flow-zone-label diffuse">diffuse layer</span><div class="ix-flow-stream"></div><i class="ix-flow-solvent s1"></i><i class="ix-flow-solvent s2"></i><i class="ix-flow-solvent s3"></i><i class="ix-flow-solvent s4"></i><i class="ix-flow-counterion c1">+</i><i class="ix-flow-counterion c2">+</i><i class="ix-flow-counterion c3">+</i><i class="ix-flow-counterion c4">+</i><i class="ix-flow-counterion c5">+</i><i class="ix-flow-counterion c6">+</i><i class="ix-flow-counterion c7">+</i><i class="ix-flow-counterion c8">+</i><i class="ix-flow-counterion c9">+</i><i class="ix-flow-counterion c10">+</i><i class="ix-flow-coion o1">−</i><i class="ix-flow-coion o2">−</i><i class="ix-flow-coion o3">−</i><i class="ix-flow-coion o4">−</i><span class="ix-flow-analyte a1">A<sup>+</sup></span><span class="ix-flow-analyte a2">A<sup>+</sup></span><span class="ix-flow-analyte a3">A<sup>+</sup></span><span class="ix-flow-analyte a4">A<sup>+</sup></span><span class="ix-flow-analyte a5">A<sup>+</sup></span><span class="ix-flow-analyte a6">A<sup>+</sup></span><span class="ix-flow-analyte a7">A<sup>+</sup></span><span class="ix-flow-analyte a8">A<sup>+</sup></span><div class="ix-flow-plug"><span>focused sample band</span></div><i class="ix-flow-salt n1">Na<sup>+</sup></i><i class="ix-flow-salt n2">Na<sup>+</sup></i><i class="ix-flow-salt n3">Na<sup>+</sup></i><i class="ix-flow-salt n4">Na<sup>+</sup></i><i class="ix-flow-salt n5">Na<sup>+</sup></i></div><div class="ix-flow-legend"><span><i class="analyte">A<sup>+</sup></i> cationic analyte</span><span><i class="counter">+</i> mobile counterion</span><span><i class="site">−</i> fixed resin charge</span></div><figcaption class="ix-flow-caption">The drawing shows one pore as a flat channel. A real packed column contains many connected pores.</figcaption><div class="pc-credit">Illustration and animation processed by PolygonCyber</div></figure><div class="ix-flow-copy"><p class="ix-flow-lead">Follow the analyte from injection to a focused band.</p><button type="button" class="ix-flow-play" data-flow-play>Play sequence</button><div class="ix-buttons"><button type="button" data-ix-state="flow" data-pdf-state data-active="true" data-copy="<strong>1. Flow:</strong> The mobile phase carries the injected analyte into the pore network.">1 Flow</button><button type="button" data-ix-state="layer" data-pdf-state data-copy="<strong>2. Double layer:</strong> Counterions gather near the negative resin. Their excess decreases from the Stern layer toward the bulk solution.">2 Double layer</button><button type="button" data-ix-state="exchange" data-pdf-state data-copy="<strong>3. Exchange:</strong> A<sup>+</sup> enters the double layer and displaces a mobile counterion from a fixed site.">3 Exchange</button><button type="button" data-ix-state="plug" data-pdf-state data-copy="<strong>4. Focus:</strong> Strong binding near the column head concentrates the injected zone into a narrow axial band, often called the sample plug.">4 Focused band</button><button type="button" data-ix-state="elute" data-pdf-state data-copy="<strong>5. Elute:</strong> Added salt supplies competing counterions and compresses the diffuse layer. The analyte returns to the mobile phase and the band moves down the column.">5 Add salt and elute</button></div><div class="ix-readout" data-ix-readout><strong>1. Flow:</strong> The mobile phase carries the injected analyte into the pore network.</div><div class="ix-flow-rule"><strong>What makes the plug?</strong> Strong retention at the column head focuses the injected zone. The double layer controls attraction and access to the exchange sites.</div></div></div><div class="page-foot">'+page+'</div>';
+    var first=slide.querySelector('[data-ix-state="flow"]');setState(slide,first);
+    setTimeout(function(){window.__chemInteractionBaseline=slides().map(function(s){return s.outerHTML;});},300);
+  }
+  document.addEventListener('click',function(event){
+    var play=event.target&&event.target.closest?event.target.closest('[data-flow-play]'):null;
+    if(!play)return;
+    event.preventDefault();event.stopPropagation();
+    var section=play.closest('section'),buttons=section?Array.prototype.slice.call(section.querySelectorAll('[data-ix-state]')):[];if(!section||!buttons.length)return;
+    if(section.__flowTimer)clearTimeout(section.__flowTimer);
+    var index=0;play.textContent='Playing…';play.disabled=true;
+    function advance(){setState(section,buttons[index]);index++;if(index<buttons.length)section.__flowTimer=setTimeout(advance,1050);else{play.textContent='Play sequence';play.disabled=false;section.__flowTimer=null;}}
+    advance();
+  });
+  install();setTimeout(install,700);setTimeout(install,1800);window.__lecture17FlowFocusInstall=install;
 })();
 </script>
 </body></html>
