@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#123f2a">
+  <title>CHEM 3400H | Double-Layer Flow Explorer</title>
+  <style>
+    :root{
+      color-scheme:light;
+      --trent:#123f2a;
+      --trent-2:#257a4a;
+      --trent-3:#5eaa7a;
+      --ink:#14231b;
+      --muted:#5e7067;
+      --paper:#f4f8f5;
+      --panel:#ffffff;
+      --line:#d4e0d9;
+      --purple:#8755ad;
+      --gold:#efba4a;
+      --blue:#89bcc9;
+      --safe-bottom:max(18px,env(safe-area-inset-bottom));
+      font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+    }
+    *{box-sizing:border-box}
+    html{background:var(--paper);scroll-behavior:smooth}
+    body{margin:0;min-width:320px;background:radial-gradient(circle at 20% 0,rgba(83,157,112,.16),transparent 34rem),var(--paper);color:var(--ink)}
+    button,input,a{font:inherit}
+    button,a{-webkit-tap-highlight-color:transparent}
+    button:focus-visible,input:focus-visible,a:focus-visible{outline:4px solid rgba(76,171,117,.38);outline-offset:3px}
+    .shell{width:min(1500px,100%);margin:0 auto;padding:24px clamp(16px,3vw,44px) var(--safe-bottom)}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:22px}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .brand-mark{width:42px;height:42px;border-radius:13px;background:linear-gradient(145deg,var(--trent-2),var(--trent));display:grid;place-items:center;color:#fff;font-weight:850;box-shadow:0 8px 20px rgba(18,63,42,.18)}
+    .brand-copy{min-width:0}.brand-copy strong{display:block;font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--trent)}.brand-copy span{display:block;margin-top:3px;color:var(--muted);font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .lecture-link{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 15px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.76);color:var(--trent);font-weight:750;text-decoration:none}
+    .lecture-link:hover{background:#fff}
+    .intro{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:28px;margin:8px 0 22px}
+    .intro h1{margin:0;font-size:clamp(34px,5vw,70px);line-height:.98;letter-spacing:-.045em;max-width:900px}
+    .intro p{margin:12px 0 0;color:var(--muted);font-size:clamp(17px,2vw,22px);line-height:1.45;max-width:780px}
+    .course-chip{align-self:center;padding:11px 15px;border-radius:999px;background:#e3f1e8;color:var(--trent);font-weight:800;font-size:14px;white-space:nowrap}
+    .tool{background:rgba(255,255,255,.93);border:1px solid rgba(184,204,193,.75);border-radius:30px;box-shadow:0 24px 60px rgba(23,67,45,.12);overflow:hidden}
+    .stepbar{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
+    .step{appearance:none;border:0;min-height:66px;padding:10px 8px;background:#f8fbf9;color:#53645b;font-weight:760;font-size:14px;line-height:1.18;cursor:pointer;transition:background .2s,color .2s}
+    .step span{display:block;margin:0 auto 5px;width:24px;height:24px;border-radius:50%;background:#dce8e1;color:#385345;line-height:24px;font-size:12px}
+    .step[aria-current="step"]{background:#e5f2ea;color:var(--trent)}
+    .step[aria-current="step"] span{background:var(--trent-2);color:#fff}
+    .sim-grid{display:grid;grid-template-columns:minmax(0,1.56fr) minmax(340px,.44fr);gap:0;min-height:610px}
+    .visual{min-width:0;padding:clamp(14px,2.2vw,28px);border-right:1px solid var(--line);background:linear-gradient(180deg,#fbfdfc,#f1f7f3)}
+    .stage{position:relative;width:100%;aspect-ratio:16/8.6;min-height:420px;border-radius:24px;overflow:hidden;background:#f7fbf9;box-shadow:inset 0 0 0 1px rgba(117,154,134,.26)}
+    canvas{display:block;width:100%;height:100%;touch-action:none}
+    .canvas-status{position:absolute;left:16px;top:14px;display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:999px;background:rgba(255,255,255,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:var(--trent);font-size:13px;font-weight:780;pointer-events:none}
+    .canvas-status i{width:9px;height:9px;border-radius:50%;background:#48a66e;box-shadow:0 0 0 5px rgba(72,166,110,.15)}
+    .legend{display:flex;flex-wrap:wrap;gap:12px 18px;margin:14px 4px 0;color:var(--muted);font-size:13px}
+    .legend span{display:inline-flex;align-items:center;gap:7px}.legend i{display:grid;place-items:center;width:23px;height:23px;border-radius:50%;font-style:normal;font-size:11px;font-weight:850}.legend .a{background:var(--purple);color:#fff}.legend .c{background:var(--gold);color:#4b3609}.legend .r{border-radius:6px;background:var(--trent-2);color:#fff}
+    .side{display:flex;flex-direction:column;min-width:0;padding:clamp(22px,3vw,38px)}
+    .eyebrow{color:var(--trent-2);font-size:13px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+    .side h2{margin:8px 0 11px;font-size:clamp(27px,3vw,39px);line-height:1.08;letter-spacing:-.025em}
+    .explain{min-height:128px;margin:0;color:#33483d;font-size:18px;line-height:1.48}
+    .science-note{margin:18px 0 0;padding:14px 16px;border-left:5px solid var(--trent-2);border-radius:0 14px 14px 0;background:#edf6f0;color:#2a4436;font-size:15px;line-height:1.4}
+    .science-note strong{color:var(--trent)}
+    .controls{margin-top:auto;padding-top:22px}
+    .salt-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}.salt-head label{font-weight:800;color:var(--trent)}.salt-head output{font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+    input[type="range"]{width:100%;height:44px;margin:0;accent-color:var(--trent-2);cursor:pointer}
+    .salt-scale{display:flex;justify-content:space-between;margin-top:-4px;color:var(--muted);font-size:12px}
+    .transport{display:grid;grid-template-columns:52px 1fr 52px;gap:9px;margin-top:18px}
+    .transport button{appearance:none;min-height:50px;border:1px solid var(--line);border-radius:14px;background:#fff;color:var(--trent);font-weight:820;cursor:pointer}
+    .transport button:hover:not(:disabled){border-color:#8fbaa1;background:#f4faf6}.transport button:disabled{opacity:.38;cursor:default}
+    .transport .play{border-color:var(--trent);background:var(--trent);color:#fff}.transport .play:hover:not(:disabled){background:#1d5a3c}
+    .progress{height:5px;margin-top:16px;border-radius:999px;background:#dfeae4;overflow:hidden}.progress span{display:block;height:100%;width:20%;border-radius:inherit;background:linear-gradient(90deg,var(--trent-2),#75bc8d);transition:width .35s}
+    .footer{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-top:18px;padding:0 6px;color:#87958e;font-size:11px;line-height:1.3}.footer p{margin:0}.footer .credit{text-align:right;color:#a1aaa5}
+    .sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+    @media(max-width:980px){
+      .intro{grid-template-columns:1fr}.course-chip{justify-self:start}.sim-grid{grid-template-columns:1fr}.visual{border-right:0;border-bottom:1px solid var(--line)}.side{min-height:520px}.explain{min-height:88px}
+    }
+    @media(max-width:680px){
+      .shell{padding:16px 12px var(--safe-bottom)}.topbar{align-items:flex-start}.brand-copy span{max-width:170px}.lecture-link{padding:9px 12px;font-size:13px}.intro{margin-top:22px}.intro h1{font-size:39px}.intro p{font-size:17px}.course-chip{display:none}.tool{border-radius:22px}.stepbar{grid-template-columns:repeat(5,minmax(86px,1fr));overflow-x:auto;scroll-snap-type:x mandatory}.step{scroll-snap-align:start;min-height:64px}.sim-grid{min-height:0}.visual{padding:12px}.stage{aspect-ratio:4/5;min-height:470px;border-radius:18px}.canvas-status{top:10px;left:10px}.legend{gap:8px 12px}.side{min-height:480px;padding:24px 20px}.side h2{font-size:31px}.explain{font-size:17px;min-height:112px}.transport{position:sticky;bottom:var(--safe-bottom);z-index:20;padding:8px;border-radius:18px;background:rgba(255,255,255,.92);box-shadow:0 10px 30px rgba(18,63,42,.18);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}.footer{align-items:flex-start;flex-direction:column}.footer .credit{text-align:left}
+    }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.progress span{transition:none}}
+  </style>
+</head>
+<body>
+  <!-- if you found this; good job :). I didn't think someone would actually go this deep into the code. -->
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brand-mark" aria-hidden="true">T</div><div class="brand-copy"><strong>CHEM 3400H</strong><span>Ion-exchange chromatography</span></div></div>
+      <a class="lecture-link" href="Lecture-17.html" aria-label="Return to Lecture 17">Lecture 17 <span aria-hidden="true">↗</span></a>
+    </header>
+
+    <section class="intro" aria-labelledby="page-title">
+      <div><h1 id="page-title">Double-Layer Flow Explorer</h1><p>Follow a charged analyte through a resin pore and see how binding focuses the injected zone into a narrow sample band.</p></div>
+      <div class="course-chip">Lecture 17 companion</div>
+    </section>
+
+    <section class="tool" aria-label="Interactive ion-exchange flow model">
+      <nav class="stepbar" aria-label="Simulation steps">
+        <button class="step" type="button" data-step="0" aria-current="step"><span>1</span>Injection</button>
+        <button class="step" type="button" data-step="1"><span>2</span>Double layer</button>
+        <button class="step" type="button" data-step="2"><span>3</span>Exchange</button>
+        <button class="step" type="button" data-step="3"><span>4</span>Focused band</button>
+        <button class="step" type="button" data-step="4"><span>5</span>Salt elution</button>
+      </nav>
+
+      <div class="sim-grid">
+        <div class="visual">
+          <div class="stage">
+            <canvas id="flow-canvas" role="img" aria-describedby="canvas-description"></canvas>
+            <div class="canvas-status"><i aria-hidden="true"></i><span id="stage-status">Mobile phase flowing</span></div>
+            <p id="canvas-description" class="sr-only">A horizontal resin pore with fixed negative charges. Mobile phase moves from left to right. Cationic analytes approach the electrical double layer, exchange with counterions, form a narrow focused band, and then move when salt concentration increases.</p>
+          </div>
+          <div class="legend" aria-label="Figure legend"><span><i class="a">A<sup>+</sup></i>Cationic analyte</span><span><i class="c">+</i>Mobile counterion</span><span><i class="r">−</i>Fixed resin charge</span></div>
+        </div>
+
+        <aside class="side" aria-live="polite">
+          <div class="eyebrow" id="step-count">Step 1 of 5</div>
+          <h2 id="step-title">Injection and flow</h2>
+          <p class="explain" id="step-copy">The mobile phase carries a short zone of A<sup>+</sup> into the connected pores of the stationary phase.</p>
+          <div class="science-note"><strong>What creates the plug?</strong> Strong retention near the column head focuses the injected zone. The double layer controls attraction and access to exchange sites.</div>
+
+          <div class="controls">
+            <div class="salt-head"><label for="salt">Salt strength</label><output id="salt-output" for="salt">15%</output></div>
+            <input id="salt" type="range" min="0" max="100" step="1" value="15" aria-describedby="salt-help">
+            <div class="salt-scale" id="salt-help"><span>low salt, stronger binding</span><span>high salt, easier elution</span></div>
+            <div class="transport" aria-label="Simulation playback">
+              <button id="back" type="button" aria-label="Previous step">←</button>
+              <button id="play" class="play" type="button">Play sequence</button>
+              <button id="next" type="button" aria-label="Next step">→</button>
+            </div>
+            <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <footer class="footer"><p>This diagram represents a small region of a negatively charged cation-exchange pore.</p><p class="credit">Illustration and animation processed by PolygonCyber</p></footer>
+  </main>
+
+  <script>
+  (function(){
+    'use strict';
+    var canvas=document.getElementById('flow-canvas'),ctx=canvas.getContext('2d');
+    var stepButtons=Array.prototype.slice.call(document.querySelectorAll('[data-step]'));
+    var title=document.getElementById('step-title'),copy=document.getElementById('step-copy'),count=document.getElementById('step-count');
+    var status=document.getElementById('stage-status'),salt=document.getElementById('salt'),saltOutput=document.getElementById('salt-output');
+    var back=document.getElementById('back'),next=document.getElementById('next'),play=document.getElementById('play'),progress=document.getElementById('progress-bar');
+    var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var state={step:0,salt:15,playing:false,phase:0,timer:null,w:0,h:0,dpr:1};
+    var steps=[
+      {title:'Injection and flow',copy:'The mobile phase carries a short zone of A<sup>+</sup> into the connected pores of the stationary phase.',status:'Mobile phase flowing'},
+      {title:'The electrical double layer',copy:'Negative resin sites attract counterions. The compact Stern layer lies beside the surface; the diffuse layer extends into the flowing solution.',status:'Counterions enriched near the surface'},
+      {title:'Ion exchange',copy:'A<sup>+</sup> enters the double layer and displaces a mobile counterion from a fixed negative site.',status:'Analyte exchanging at fixed sites'},
+      {title:'A focused sample band',copy:'Strong binding near the column head concentrates the injected zone into a narrow axial band, often called the sample plug.',status:'Narrow analyte band formed'},
+      {title:'Salt-driven elution',copy:'Salt supplies competing counterions and compresses the diffuse layer. A<sup>+</sup> returns to the mobile phase and the band moves forward.',status:'Salt releasing the analyte band'}
+    ];
+    var analytes=Array.from({length:18},function(_,i){return {jitter:((i*37)%17-8)/8,row:(i*53)%97/96,phase:(i*29)%100/100};});
+    function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+    function roundRect(x,y,w,h,r){r=Math.min(r,w/2,h/2);ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+    function circle(x,y,r,fill,stroke){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=fill;ctx.fill();if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=1.4;ctx.stroke();}}
+    function text(value,x,y,size,color,align,weight){ctx.font=(weight||700)+' '+size+'px -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif';ctx.fillStyle=color;ctx.textAlign=align||'left';ctx.textBaseline='middle';ctx.fillText(value,x,y);}
+    function arrow(x1,x2,y,alpha){ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle='#4c8f69';ctx.fillStyle='#4c8f69';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(x1,y);ctx.lineTo(x2,y);ctx.stroke();ctx.beginPath();ctx.moveTo(x2,y);ctx.lineTo(x2-8,y-5);ctx.lineTo(x2-8,y+5);ctx.closePath();ctx.fill();ctx.restore();}
+    function drawIon(x,y,r,label,fill,color,alpha){ctx.save();ctx.globalAlpha=alpha;circle(x,y,r,fill,'rgba(21,44,31,.12)');text(label,x,y+.5,Math.max(9,r*.9),color,'center',800);ctx.restore();}
+    function resize(){
+      var rect=canvas.getBoundingClientRect();state.dpr=Math.min(window.devicePixelRatio||1,2);state.w=Math.max(300,rect.width);state.h=Math.max(360,rect.height);
+      canvas.width=Math.round(state.w*state.dpr);canvas.height=Math.round(state.h*state.dpr);ctx.setTransform(state.dpr,0,0,state.dpr,0,0);draw();
+    }
+    function draw(){
+      var w=state.w,h=state.h;if(!w||!h)return;ctx.clearRect(0,0,w,h);
+      var x0=w*.055,x1=w*.945,y0=h*.085,y1=h*.915,cw=x1-x0,ch=y1-y0,wall=Math.max(48,ch*.145),top=y0+wall,bottom=y1-wall,fluidH=bottom-top;
+      var gradient=ctx.createLinearGradient(0,y0,0,y1);gradient.addColorStop(0,'#d9ebe1');gradient.addColorStop(.22,'#f2f8f4');gradient.addColorStop(.5,'#ffffff');gradient.addColorStop(.78,'#f2f8f4');gradient.addColorStop(1,'#d9ebe1');roundRect(x0,y0,cw,ch,22);ctx.fillStyle=gradient;ctx.fill();ctx.strokeStyle='rgba(34,103,66,.2)';ctx.lineWidth=1.5;ctx.stroke();
+      ctx.save();roundRect(x0,y0,cw,wall+6,22);ctx.clip();ctx.fillStyle='#c7ddd1';ctx.fillRect(x0,y0,cw,wall+6);ctx.restore();ctx.save();roundRect(x0,y1-wall-6,cw,wall+6,22);ctx.clip();ctx.fillStyle='#c7ddd1';ctx.fillRect(x0,y1-wall-6,cw,wall+6);ctx.restore();
+      ctx.fillStyle='#257a4a';ctx.fillRect(x0,top-5,cw,5);ctx.fillRect(x0,bottom,cw,5);
+      var sites=Math.max(8,Math.floor(cw/86));for(var i=0;i<sites;i++){var sx=x0+40+i*(cw-80)/(sites-1);text('−',sx,top-wall*.45,Math.min(28,wall*.45),'#1b5c37','center',850);text('−',sx,bottom+wall*.5,Math.min(28,wall*.45),'#1b5c37','center',850);}
+      var saltN=state.salt/100,stern=Math.max(15,fluidH*.09),diffuse=fluidH*(.25-.16*saltN),showLayer=state.step>=1?1:.16;
+      ctx.save();ctx.globalAlpha=showLayer;ctx.fillStyle='rgba(239,186,74,.27)';ctx.fillRect(x0,top,cw,stern);ctx.fillRect(x0,bottom-stern,cw,stern);var g1=ctx.createLinearGradient(0,top+stern,0,top+stern+diffuse);g1.addColorStop(0,'rgba(65,156,103,.25)');g1.addColorStop(1,'rgba(65,156,103,0)');ctx.fillStyle=g1;ctx.fillRect(x0,top+stern,cw,diffuse);var g2=ctx.createLinearGradient(0,bottom-stern-diffuse,0,bottom-stern);g2.addColorStop(0,'rgba(65,156,103,0)');g2.addColorStop(1,'rgba(65,156,103,.25)');ctx.fillStyle=g2;ctx.fillRect(x0,bottom-stern-diffuse,cw,diffuse);ctx.restore();
+      if(state.step>=1){text('Stern layer',x1-16,top+stern*.5,Math.max(11,Math.min(14,w/75)),'#715b25','right',760);text('diffuse layer',x1-16,top+stern+diffuse*.42,Math.max(11,Math.min(14,w/75)),'#3d6d53','right',760);}
+      for(var a=0;a<3;a++){var yy=top+fluidH*(.34+a*.16);arrow(x0+cw*.14,x0+cw*.36,yy,.24);arrow(x0+cw*.48,x0+cw*.70,yy,.24);arrow(x0+cw*.80,x1-18,yy,.24);}
+      var phase=state.phase;for(var f=0;f<18;f++){var fx=x0+((phase*.045+f/18)%1)*cw,fy=top+fluidH*(.22+((f*41)%61)/100);circle(fx,fy,2.5,'rgba(90,151,122,.42)');}
+      var counterCount=14+Math.round(saltN*12);for(var c=0;c<counterCount;c++){var cx=x0+25+((c*73)%Math.max(40,cw-50)),upper=c%2===0,offset=7+((c*19)%Math.max(9,diffuse+stern-10));var cy=upper?top+offset:bottom-offset;drawIon(cx,cy,Math.max(8,Math.min(11,w/100)),'+','#efba4a','#4d390c',state.step>=1?.88:.14);}
+      if(state.step>=1){for(var o=0;o<6;o++){var ox=x0+cw*(.25+((o*29)%62)/100),upper=o%2===0,oy=upper?top+stern+diffuse*(.65+((o*17)%25)/100):bottom-stern-diffuse*(.65+((o*17)%25)/100);drawIon(ox,oy,7,'−','#8abcc8','#244e58',.52);}}
+      var plugX=null,plugWidth=Math.max(48,cw*.075);if(state.step===3){plugX=x0+cw*.29;}if(state.step===4){plugX=x0+cw*(.29+.46*saltN);plugWidth*=1+.45*saltN;}
+      if(plugX!==null){ctx.save();ctx.globalAlpha=.18;roundRect(plugX-plugWidth/2,top+8,plugWidth,fluidH-16,16);ctx.fillStyle='#8755ad';ctx.fill();ctx.globalAlpha=.72;ctx.strokeStyle='#8755ad';ctx.lineWidth=2;ctx.stroke();ctx.restore();text('sample band',plugX,bottom-18,Math.max(11,Math.min(14,w/75)),'#70428f','center',800);}
+      analytes.forEach(function(p,i){
+        var ax,ay,r=Math.max(10,Math.min(16,w/76)),alpha=1;
+        if(state.step===0){ax=x0+cw*(.08+(i%6)*.022)+Math.sin(phase*2+p.phase*6)*3;ay=top+fluidH*(.22+p.row*.56);}
+        else if(state.step===1){ax=x0+cw*(.14+(i%9)*.045);var pull=(i%3===0?.18:.32);ay=i%2===0?top+fluidH*pull:bottom-fluidH*pull;}
+        else if(state.step===2){ax=x0+cw*(.24+(i%9)*.055);ay=i%2===0?top+r+2:bottom-r-2;}
+        else if(state.step===3){ax=plugX+p.jitter*plugWidth*.25;ay=top+r+8+p.row*(fluidH-2*r-16);}
+        else{ax=plugX+p.jitter*plugWidth*.28;ay=top+r+12+p.row*(fluidH-2*r-24);alpha=.9;}
+        drawIon(ax,ay,r,'A+','#8755ad','#ffffff',alpha);
+      });
+      if(state.step===4){var saltDots=8+Math.round(saltN*18);for(var n=0;n<saltDots;n++){var nx=x0+cw*((n*47)%100)/100,ny=top+fluidH*(.16+((n*67)%68)/100);drawIon(nx,ny,Math.max(7,Math.min(10,w/115)),'+','#f4d477','#4c390d',.76);}}
+      if(w>560){text('column head',x0+8,y1+18,12,'#6b7b73','left',700);text('mobile phase →',x1-8,y1+18,12,'#6b7b73','right',700);}
+    }
+    function updateUI(){
+      var s=steps[state.step];count.textContent='Step '+(state.step+1)+' of '+steps.length;title.textContent=s.title;copy.innerHTML=s.copy;status.textContent=s.status;
+      stepButtons.forEach(function(button,i){if(i===state.step)button.setAttribute('aria-current','step');else button.removeAttribute('aria-current');});
+      back.disabled=state.step===0;next.disabled=state.step===steps.length-1;progress.style.width=((state.step+1)/steps.length*100)+'%';saltOutput.textContent=state.salt+'%';draw();
+    }
+    function setStep(value,manual){state.step=clamp(value,0,steps.length-1);if(state.step===4&&state.salt<35){state.salt=65;salt.value='65';}if(manual)stop();updateUI();}
+    function stop(){if(state.timer)clearTimeout(state.timer);state.timer=null;state.playing=false;play.textContent='Play sequence';play.setAttribute('aria-pressed','false');}
+    function start(){stop();state.playing=true;play.textContent='Pause';play.setAttribute('aria-pressed','true');if(state.step===steps.length-1)state.step=0;updateUI();function advance(){if(!state.playing)return;if(state.step<steps.length-1){state.step++;if(state.step===4&&state.salt<35){state.salt=65;salt.value='65';}updateUI();state.timer=setTimeout(advance,reduced?1700:2300);}else stop();}state.timer=setTimeout(advance,reduced?1700:2300);}
+    stepButtons.forEach(function(button){button.addEventListener('click',function(){setStep(parseInt(button.getAttribute('data-step'),10),true);});});
+    back.addEventListener('click',function(){setStep(state.step-1,true);});next.addEventListener('click',function(){setStep(state.step+1,true);});play.addEventListener('click',function(){state.playing?stop():start();});
+    salt.addEventListener('input',function(){state.salt=parseInt(salt.value,10);saltOutput.textContent=state.salt+'%';draw();});
+    document.addEventListener('keydown',function(event){if(event.key==='ArrowRight')setStep(state.step+1,true);if(event.key==='ArrowLeft')setStep(state.step-1,true);if(event.key===' '&&event.target===document.body){event.preventDefault();state.playing?stop():start();}});
+    function animate(time){if(!reduced){state.phase=time/1000;draw();}requestAnimationFrame(animate);}
+    if('ResizeObserver' in window)new ResizeObserver(resize).observe(canvas);else window.addEventListener('resize',resize);
+    resize();updateUI();requestAnimationFrame(animate);
+  })();
+  </script>
+</body>
+</html>
